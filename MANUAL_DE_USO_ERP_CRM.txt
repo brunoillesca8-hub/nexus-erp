@@ -1,0 +1,153 @@
+================================================================================
+                    MANUAL DE USO Y GUÍA ESTRATÉGICA
+            NEXUS ERP + CRM + SISTEMA DE INVENTARIO MULTI-TENANT
+================================================================================
+
+Moneda: Pesos Chilenos (CLP)
+Arquitectura: Next.js + PostgreSQL (Supabase) + Tailwind CSS + Recharts
+Seguridad: Row Level Security (RLS) & Control de Acceso basado en Roles (RBAC)
+
+--------------------------------------------------------------------------------
+ÍNDICE
+--------------------------------------------------------------------------------
+1. INTRODUCCIÓN Y OBJETIVO DEL SISTEMA
+2. ESTRUCTURA DE ROLES Y MULTI-EMPRESA
+3. MÓDULO POR MÓDULO: CÓMO OPERAR EL ERP
+   - 3.1. Dashboard Principal (KPIs en tiempo real)
+   - 3.2. Punto de Venta - POS (/ventas/nueva)
+   - 3.3. Historial de Ventas (/ventas)
+   - 3.4. Catálogo de Productos (/productos)
+   - 3.5. Gestión de Inventario, Políticas (ROP, SS, Q) & Kardex (/inventario)
+   - 3.6. Clientes y CRM (/clientes)
+   - 3.7. Proveedores (/proveedores)
+   - 3.8. Inteligencia de Negocio y Analítica
+          * Curvas Top 10 Productos (/analitica/top-productos)
+          * Matriz ABC - XYZ (/analitica/matriz-abc-xyz)
+          * Rentabilidad y Márgenes (/analitica/rentabilidad)
+          * Horarios Pico de Venta (/analitica/horarios)
+   - 3.9. Configuración y Carga Masiva CSV (/configuracion)
+4. POLÍTICAS DE INVENTARIO CUANTITATIVAS EXPLICADAS (ROP, Q, SS)
+5. FLUJO DE TRABAJO DIARIO RECOMENDADO (RUTINA OPERATIVA)
+
+================================================================================
+1. INTRODUCCIÓN Y OBJETIVO DEL SISTEMA
+================================================================================
+Nexus ERP no es simplemente un software para registrar cobros; es un motor de 
+toma de decisiones que transforma cada venta en recomendaciones concretas:
+- Te dice qué productos generan más ganancias reales.
+- Cuándo y cuánto pedir a tus proveedores para nunca quedarte sin stock.
+- Quiénes son tus mejores clientes y cómo retenerlos.
+- Qué productos son candidatos a liquidación por baja rotación.
+
+================================================================================
+2. ESTRUCTURA DE ROLES Y MULTI-EMPRESA
+================================================================================
+El sistema está diseñado para que múltiples colaboradores trabajen a la vez:
+- ADMINISTRADOR (ADMIN): Acceso total a finanzas, costos, configuración y usuarios.
+- VENDEDOR: Acceso al Punto de Venta (POS), catálogo y registro de clientes.
+- ENCARGADO DE INVENTARIO: Recepción de mercadería, ajustes de stock y Kardex.
+- ANALISTA: Visualización de gráficos, rentabilidad y matriz ABC/XYZ.
+
+================================================================================
+3. GUÍA DE OPERACIÓN MÓDULO POR MÓDULO
+================================================================================
+
+3.1. DASHBOARD PRINCIPAL (/)
+- Resumen de ventas del día y del mes en Pesos Chilenos (CLP).
+- Ticket promedio de compra por cliente.
+- Margen bruto promedio del negocio.
+- Alertas inmediatas de productos que cayeron por debajo de su stock mínimo.
+- Gráfico de evolución semanal de facturación.
+
+3.2. TERMINAL PUNTO DE VENTA - POS (/ventas/nueva)
+- Soporte para Pistola / Lector USB o Bluetooth (captura automática al pistolear).
+- Botón "Escanear con Cámara" para celulares y tablets (abre cámara trasera).
+- Buscador rápido por Nombre o SKU.
+- BLOQUEO ESTRICTO: Si el stock es 0 o insuficiente, el sistema no permite vender.
+- Opciones de pago: Efectivo, Tarjeta de Débito, Tarjeta de Crédito, Transferencia.
+- Al confirmar la venta:
+  1. Se congela el costo unitario de compra histórico.
+  2. Se descuenta el stock de la sucursal de forma atómica.
+  3. Se genera un registro de salida en el Kardex.
+  4. Se abre el ticket listo para imprimir.
+
+3.3. HISTORIAL DE VENTAS (/ventas)
+- Listado cronológico de todas las ventas emitidas.
+- Búsqueda por número de folio #, cliente o medio de pago.
+- Visualización y reimpresión de comprobantes en cualquier momento.
+
+3.4. CATÁLOGO DE PRODUCTOS (/productos)
+- Creación y edición de productos con SKU, Código de barras, Categoría y Proveedor.
+- Cálculo automático en pantalla del Margen de Ganancia % y Utilidad en CLP.
+- Filtro rápido de "Solo Stock Bajo".
+- Botón para "Exportar Catálogo a CSV".
+
+3.5. INVENTARIO, POLÍTICAS ROP/SS/Q & KARDEX (/inventario)
+- Pestaña 1 (Stock Actual): Existencias en tiempo real por sucursal.
+- Pestaña 2 (Políticas ROP, Q & SS): Cálculo matemático de abastecimiento.
+  * Muestra cuándo reordenar (ROP) y cuántas unidades comprar (Q*).
+  * Muestra el colchón de Stock de Seguridad (SS).
+  * Alerta visual "¡PEDIR Q UNIDADES!" cuando el stock entra en zona crítica.
+- Pestaña 3 (Kardex Histórico): Registro inmutable que responde a la pregunta
+  "¿Por qué este producto subió o bajó de unidades?". Registra ventas, compras,
+  ajustes físicos y mermas por daño con fecha, hora y responsable.
+
+3.6. CRM CLIENTES (/clientes)
+- Registro de clientes con RUT, teléfono, email y dirección.
+- Métricas financieras por cliente: Total gastado histórico, cantidad de compras
+  y ticket promedio para identificar a los clientes VIP.
+
+3.7. PROVEEDORES (/proveedores)
+- Directorio de proveedores, personas de contacto y teléfonos comerciales.
+
+3.8. INTELIGENCIA DE NEGOCIO Y ANALÍTICA
+- Top 10 Productos (/analitica/top-productos):
+  Gráfico multilínea interactivo con 10 colores diferenciados para seguir
+  las tendencias de venta semanal de tus productos más populares.
+- Matriz ABC - XYZ (/analitica/matriz-abc-xyz):
+  * Segmentación ABC: Pareto de importancia económica (A = 80%, B = 15%, C = 5%).
+  * Segmentación XYZ: Predictibilidad de la demanda (X = estable, Z = errática).
+  * Cuadrante 3x3 interactivo con recomendaciones de compra automática.
+- Rentabilidad (/analitica/rentabilidad):
+  Comparativa de costo vs precio de venta y utilidad neta por producto.
+- Horarios Pico (/analitica/horarios):
+  Mapa de franjas horarias para saber a qué hora del día se concentra la facturación.
+
+3.9. CONFIGURACIÓN (/configuracion)
+- Configuración de Razón Social, RUT, Tasa de IVA (19%) y Sucursales.
+- Herramienta de Importación Masiva CSV para subir catálogos completos con
+  previsualización y validación antes de guardar.
+
+================================================================================
+4. POLÍTICAS DE INVENTARIO CUANTITATIVAS EXPLICADAS
+================================================================================
+El ERP utiliza las siguientes fórmulas de ingeniería industrial:
+
+1. Stock de Seguridad (SS):
+   SS = Z * Desviación_Demanda * sqrt(Lead_Time)
+   Protege contra aumentos inesperados de clientes o retrasos del camión distribuidor.
+
+2. Punto de Reorden (ROP):
+   ROP = (Demanda_Diaria * Días_Entrega_Proveedor) + SS
+   Es el nivel gatillo: si el stock llega a este número, se debe emitir la orden hoy.
+
+3. Lote Económico de Pedido (EOQ / Q*):
+   Q = sqrt((2 * Demanda_Anual * Costo_Pedir) / Costo_Mantenimiento)
+   Indica el tamaño exacto de pedido para ahorrar en fletes y almacenaje.
+
+================================================================================
+5. RUTINA OPERATIVA RECOMENDADA
+================================================================================
+- MAÑANA (Apertura):
+  1. Abrir /inventario -> Pestaña "Políticas ROP, Q & SS".
+  2. Revisar si hay productos con alerta "¡PEDIR Q UNIDADES!" y llamar proveedores.
+  3. Si llega mercadería, registrar "Ajuste / Entrada de Stock" (tipo ENTRADA_COMPRA).
+
+- DURANTE EL DÍA (Ventas):
+  1. Mantener abierto /ventas/nueva en la computadora o celular del mesón.
+  2. Pistolear o escanear productos y confirmar ventas.
+
+- TARDE / CIERRE:
+  1. Revisar / para ver el total vendido del día y ticket promedio.
+  2. Consultar /analitica/horarios y /analitica/top-productos para evaluar el día.
+================================================================================

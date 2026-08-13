@@ -1,5 +1,6 @@
 -- ==============================================================================
 -- ERP + CRM + INVENTARIO MULTI-TENANT: ESQUEMA DE BASE DE DATOS SUPABASE POSTGRESQL
+-- (SCRIPT 100% IDEMPOTENTE / RE-EJECUTABLE SIN ERRORES)
 -- ==============================================================================
 
 -- 1. EXTENSIONES
@@ -217,7 +218,7 @@ CREATE TABLE IF NOT EXISTS movimientos_inventario (
 CREATE INDEX IF NOT EXISTS idx_movimientos_producto ON movimientos_inventario(producto_id, created_at);
 
 -- ==============================================================================
--- 4. ROW LEVEL SECURITY (RLS)
+-- 4. ROW LEVEL SECURITY (RLS) - CON LIMPIEZA PREVIA PARA EVITAR CONFLICTOS
 -- ==============================================================================
 
 ALTER TABLE empresas ENABLE ROW LEVEL SECURITY;
@@ -244,13 +245,28 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
--- Políticas RLS para usuarios_perfil
+-- Eliminar políticas anteriores si existen para que nunca dé error 42710
+DROP POLICY IF EXISTS "Usuarios pueden ver su propio perfil" ON usuarios_perfil;
+DROP POLICY IF EXISTS "Usuarios pueden actualizar su propio perfil" ON usuarios_perfil;
+DROP POLICY IF EXISTS "Tenant empresas SELECT" ON empresas;
+DROP POLICY IF EXISTS "Tenant sucursales ALL" ON sucursales;
+DROP POLICY IF EXISTS "Tenant miembros_empresa SELECT" ON miembros_empresa;
+DROP POLICY IF EXISTS "Tenant categorias ALL" ON categorias;
+DROP POLICY IF EXISTS "Tenant proveedores ALL" ON proveedores;
+DROP POLICY IF EXISTS "Tenant clientes ALL" ON clientes;
+DROP POLICY IF EXISTS "Tenant productos ALL" ON productos;
+DROP POLICY IF EXISTS "Tenant stock_sucursal ALL" ON stock_sucursal;
+DROP POLICY IF EXISTS "Tenant ventas ALL" ON ventas;
+DROP POLICY IF EXISTS "Tenant detalle_ventas ALL" ON detalle_ventas;
+DROP POLICY IF EXISTS "Tenant movimientos_inventario ALL" ON movimientos_inventario;
+
+-- Crear políticas limpias
 CREATE POLICY "Usuarios pueden ver su propio perfil" 
     ON usuarios_perfil FOR SELECT USING (auth.uid() = id);
+
 CREATE POLICY "Usuarios pueden actualizar su propio perfil" 
     ON usuarios_perfil FOR UPDATE USING (auth.uid() = id);
 
--- Políticas RLS genéricas para tablas vinculadas a empresa_id
 CREATE POLICY "Tenant empresas SELECT" ON empresas 
     FOR SELECT USING (id IN (SELECT empresa_id FROM get_user_empresa_ids()));
 
@@ -298,7 +314,7 @@ CREATE OR REPLACE FUNCTION procesar_venta_pos(
     p_impuesto NUMERIC,
     p_total NUMERIC,
     p_metodo_pago metodo_pago_tipo,
-    p_items JSONB -- Array: [{"producto_id": UUID, "cantidad": INT, "precio_unitario": NUMERIC, "costo_unitario": NUMERIC, "descuento": NUMERIC, "subtotal": NUMERIC}]
+    p_items JSONB
 )
 RETURNS UUID AS $$
 DECLARE
@@ -314,13 +330,12 @@ DECLARE
     v_stock_posterior INT;
     v_nombre_producto TEXT;
 BEGIN
-    -- 1. Validar stock de todos los productos antes de procesar
+    -- 1. Validar stock antes de procesar
     FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)
     LOOP
         v_producto_id := (v_item->>'producto_id')::UUID;
         v_cantidad := (v_item->>'cantidad')::INT;
 
-        -- Obtener stock actual con bloqueo de fila (FOR UPDATE)
         SELECT s.stock_actual, p.nombre 
         INTO v_stock_actual, v_nombre_producto
         FROM stock_sucursal s
@@ -334,7 +349,7 @@ BEGIN
         END IF;
     END LOOP;
 
-    -- 2. Insertar cabecera de la venta
+    -- 2. Insertar venta
     INSERT INTO ventas (
         empresa_id,
         sucursal_id,
@@ -359,7 +374,7 @@ BEGIN
         'COMPLETADA'
     ) RETURNING id INTO v_venta_id;
 
-    -- 3. Procesar cada item, descontar inventario y registrar movimiento en Kardex
+    -- 3. Detalle, Kardex y descuento de stock
     FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)
     LOOP
         v_producto_id := (v_item->>'producto_id')::UUID;
@@ -369,14 +384,12 @@ BEGIN
         v_descuento := COALESCE((v_item->>'descuento')::NUMERIC, 0);
         v_item_subtotal := (v_item->>'subtotal')::NUMERIC;
 
-        -- Obtener stock actual
         SELECT stock_actual INTO v_stock_actual
         FROM stock_sucursal
         WHERE sucursal_id = p_sucursal_id AND producto_id = v_producto_id;
 
         v_stock_posterior := v_stock_actual - v_cantidad;
 
-        -- Insertar detalle de venta
         INSERT INTO detalle_ventas (
             venta_id,
             producto_id,
@@ -395,13 +408,11 @@ BEGIN
             v_item_subtotal
         );
 
-        -- Descontar de stock_sucursal
         UPDATE stock_sucursal
         SET stock_actual = v_stock_posterior,
             updated_at = now()
         WHERE sucursal_id = p_sucursal_id AND producto_id = v_producto_id;
 
-        -- Registrar movimiento en Kardex
         INSERT INTO movimientos_inventario (
             empresa_id,
             sucursal_id,
@@ -431,7 +442,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Trigger automático para crear perfil cuando se registra un usuario en Supabase Auth
+-- Trigger de creación de perfil automático
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -445,6 +456,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE TRIGGER on_auth_user_created
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();

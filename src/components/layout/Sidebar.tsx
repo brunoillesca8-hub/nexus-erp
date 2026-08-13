@@ -56,8 +56,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     {
       group: 'Inteligencia de Negocio',
       items: [
+        { name: 'Top 10 Productos (Curvas)', href: '/analitica/top-productos', icon: TrendingUp, roles: ['ADMIN', 'ANALISTA', 'VENDEDOR'] },
         { name: 'Matriz ABC - XYZ', href: '/analitica/matriz-abc-xyz', icon: Layers, roles: ['ADMIN', 'ANALISTA'] },
-        { name: 'Rentabilidad & Márgenes', href: '/analitica/rentabilidad', icon: TrendingUp, roles: ['ADMIN', 'ANALISTA'] },
+        { name: 'Rentabilidad & Márgenes', href: '/analitica/rentabilidad', icon: BarChart3, roles: ['ADMIN', 'ANALISTA'] },
         { name: 'Horarios de Venta', href: '/analitica/horarios', icon: Clock, roles: ['ADMIN', 'ANALISTA'] },
       ],
     },

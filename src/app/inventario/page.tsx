@@ -1,15 +1,29 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useERP } from '@/context/erp-context';
 import { formatDate } from '@/lib/utils';
-import { Boxes, History, PlusCircle, ArrowDownLeft, ArrowUpRight, AlertTriangle, Search, Filter, ShieldCheck, X } from 'lucide-react';
+import { 
+  Boxes, 
+  History, 
+  PlusCircle, 
+  Calculator, 
+  AlertTriangle, 
+  CheckCircle2, 
+  ShieldAlert, 
+  Search, 
+  Sparkles, 
+  X,
+  HelpCircle,
+  Truck
+} from 'lucide-react';
 import { TipoMovimiento } from '@/types/database.types';
+import { calcularPoliticasInventario } from '@/services/inventory-policy.service';
 
 export default function InventarioPage() {
-  const { productos, movimientos, ajustarStock, sucursalActiva, empresa } = useERP();
+  const { productos, ventas, movimientos, ajustarStock, sucursalActiva, empresa } = useERP();
 
-  const [tab, setTab] = useState<'stock' | 'kardex'>('stock');
+  const [tab, setTab] = useState<'stock' | 'politicas' | 'kardex'>('stock');
   const [modalAjusteOpen, setModalAjusteOpen] = useState(false);
   const [busqueda, setBusqueda] = useState('');
 
@@ -18,6 +32,11 @@ export default function InventarioPage() {
   const [tipoAjuste, setTipoAjuste] = useState<TipoMovimiento>('ENTRADA_COMPRA');
   const [cantidadAjuste, setCantidadAjuste] = useState<number>(5);
   const [motivoAjuste, setMotivoAjuste] = useState('');
+
+  // Políticas cuantitativas calculadas en tiempo real (ROP, SS, Q)
+  const politicas = useMemo(() => {
+    return calcularPoliticasInventario(productos, ventas);
+  }, [productos, ventas]);
 
   const handleAjusteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,7 +172,9 @@ export default function InventarioPage() {
           </div>
           <div>
             <h2 className="text-lg font-black text-slate-900 tracking-tight">Gestión de Inventario & Kardex</h2>
-            <p className="text-xs text-slate-500">Monitoreo de existencias por sucursal y trazabilidad completa de movimientos.</p>
+            <p className="text-xs text-slate-500">
+              Políticas cuantitativas con <strong className="text-slate-800">ROP, Lote Óptimo (Q) y Stock de Seguridad (SS)</strong>.
+            </p>
           </div>
         </div>
 
@@ -176,7 +197,18 @@ export default function InventarioPage() {
               : 'border-transparent text-slate-400 hover:text-slate-700'
           }`}
         >
-          Stock Actual por Producto
+          Stock Actual
+        </button>
+        <button
+          onClick={() => setTab('politicas')}
+          className={`pb-3 border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
+            tab === 'politicas'
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-slate-400 hover:text-slate-700'
+          }`}
+        >
+          <Calculator className="w-4 h-4 text-indigo-600" />
+          <span>Políticas ROP, Q & SS (Cuantitativo)</span>
         </button>
         <button
           onClick={() => setTab('kardex')}
@@ -238,7 +270,87 @@ export default function InventarioPage() {
         </div>
       )}
 
-      {/* TAB 2: Kardex Movimientos */}
+      {/* TAB 2: Políticas Cuantitativas de Inventario (ROP, Q, SS) */}
+      {tab === 'politicas' && (
+        <div className="space-y-4">
+          <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-2xl flex items-center justify-between text-xs text-indigo-900">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-indigo-600 shrink-0" />
+              <div>
+                <strong className="block font-bold">Fórmulas Matemáticas de Inventario Activas</strong>
+                <span>
+                  <strong>SS:</strong> Stock de Seguridad (95% nivel de servicio) | <strong>ROP:</strong> Punto de Reorden | <strong>Q*:</strong> Lote Económico de Pedido (EOQ).
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-400 uppercase font-bold text-[10px] tracking-wider border-b border-slate-100">
+                  <tr>
+                    <th className="px-4 py-3.5">SKU / Producto</th>
+                    <th className="px-4 py-3.5 text-center">Demanda (d/día)</th>
+                    <th className="px-4 py-3.5 text-center">Stock Seg. (SS)</th>
+                    <th className="px-4 py-3.5 text-center">Punto Reorden (ROP)</th>
+                    <th className="px-4 py-3.5 text-center">Lote Óptimo (Q*)</th>
+                    <th className="px-4 py-3.5 text-center">Stock Actual</th>
+                    <th className="px-4 py-3.5 text-center">Acción Sugerida</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {politicas.map((pol) => {
+                    return (
+                      <tr key={pol.productoId} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="px-4 py-3">
+                          <span className="font-bold text-slate-900 block">{pol.nombre}</span>
+                          <span className="font-mono text-[10px] text-slate-400">{pol.sku}</span>
+                        </td>
+                        <td className="px-4 py-3 text-center font-bold text-slate-700 font-mono">
+                          ~{pol.demandaPromedioDiaria} un/día
+                        </td>
+                        <td className="px-4 py-3 text-center font-mono font-semibold text-slate-600 bg-slate-50/60">
+                          {pol.stockSeguridad} un
+                        </td>
+                        <td className="px-4 py-3 text-center font-mono font-bold text-indigo-700 bg-indigo-50/40">
+                          {pol.puntoReorden} un
+                        </td>
+                        <td className="px-4 py-3 text-center font-mono font-bold text-emerald-700 bg-emerald-50/40">
+                          {pol.loteEconomicoQ} un
+                        </td>
+                        <td className="px-4 py-3 text-center font-extrabold text-slate-900 text-sm">
+                          {pol.stockActual}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {pol.estadoInventario === 'CRITICO_REORDENAR' ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 border border-rose-200">
+                              <ShieldAlert className="w-3 h-3" />
+                              ¡PEDIR {pol.loteEconomicoQ} UNID.!
+                            </span>
+                          ) : pol.estadoInventario === 'EN_STOCK_SEGURIDAD' ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                              <AlertTriangle className="w-3 h-3" />
+                              Reorden Próximo
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Stock Saludable
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: Kardex Movimientos */}
       {tab === 'kardex' && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">

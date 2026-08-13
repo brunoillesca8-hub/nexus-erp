@@ -23,6 +23,7 @@ import {
   DEMO_VENTAS, 
   DEMO_MOVIMIENTOS 
 } from '@/lib/mock-data';
+import { createClient } from '@/lib/supabase/client';
 
 interface ERPContextType {
   // Tenant & Sesión
@@ -41,13 +42,13 @@ interface ERPContextType {
   clientes: Cliente[];
   
   // Operaciones Catálogo
-  agregarProducto: (producto: Omit<Producto, 'id' | 'created_at' | 'updated_at'>) => void;
+  agregarProducto: (producto: Omit<Producto, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
   actualizarProducto: (id: string, producto: Partial<Producto>) => void;
   eliminarProducto: (id: string) => void;
-  agregarCliente: (cliente: Omit<Cliente, 'id' | 'created_at'>) => void;
+  agregarCliente: (cliente: Omit<Cliente, 'id' | 'created_at'>) => Promise<void>;
   actualizarCliente: (id: string, cliente: Partial<Cliente>) => void;
-  agregarProveedor: (proveedor: Omit<Proveedor, 'id' | 'created_at'>) => void;
-  agregarCategoria: (categoria: Omit<Categoria, 'id' | 'created_at'>) => void;
+  agregarProveedor: (proveedor: Omit<Proveedor, 'id' | 'created_at'>) => Promise<void>;
+  agregarCategoria: (categoria: Omit<Categoria, 'id' | 'created_at'>) => Promise<void>;
   
   // Ventas & POS
   ventas: Venta[];
@@ -66,8 +67,8 @@ interface ERPContextType {
   movimientos: MovimientoInventario[];
   ajustarStock: (productoId: string, cantidad: number, motivo: string, tipo: MovimientoInventario['tipo']) => void;
 
-  // Estado UI
-  isDemoMode: boolean;
+  // Estado UI & Sincronización
+  isOnlineSupabase: boolean;
   notificacion: { mensaje: string; tipo: 'success' | 'error' | 'info' } | null;
   mostrarNotificacion: (mensaje: string, tipo?: 'success' | 'error' | 'info') => void;
 }
@@ -75,6 +76,8 @@ interface ERPContextType {
 const ERPContext = createContext<ERPContextType | undefined>(undefined);
 
 export function ERPProvider({ children }: { children: React.ReactNode }) {
+  const [supabase] = useState(() => createClient());
+
   const [empresa, setEmpresa] = useState<Empresa>(DEMO_EMPRESA);
   const [sucursales, setSucursales] = useState<Sucursal[]>(DEMO_SUCURSALES);
   const [sucursalActiva, setSucursalActiva] = useState<Sucursal>(DEMO_SUCURSALES[0]);
@@ -87,10 +90,43 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
   const [ventas, setVentas] = useState<Venta[]>(DEMO_VENTAS);
   const [movimientos, setMovimientos] = useState<MovimientoInventario[]>(DEMO_MOVIMIENTOS);
 
-  const [isDemoMode] = useState<boolean>(true);
+  const [isOnlineSupabase, setIsOnlineSupabase] = useState<boolean>(false);
   const [notificacion, setNotificacion] = useState<{ mensaje: string; tipo: 'success' | 'error' | 'info' } | null>(null);
 
-  // Cargar datos guardados en LocalStorage si existen
+  const mostrarNotificacion = useCallback((mensaje: string, tipo: 'success' | 'error' | 'info' = 'success') => {
+    setNotificacion({ mensaje, tipo });
+    setTimeout(() => {
+      setNotificacion(null);
+    }, 4000);
+  }, []);
+
+  // Intentar sincronizar con Supabase Cloud
+  useEffect(() => {
+    async function sincronizarConSupabase() {
+      try {
+        const { data: prodsData, error: prodsErr } = await supabase.from('productos').select('*');
+        if (!prodsErr && prodsData && prodsData.length > 0) {
+          setProductos(prodsData.map(p => ({ ...p, stock_actual: p.stock_actual ?? 15 })));
+          setIsOnlineSupabase(true);
+        }
+
+        const { data: empData } = await supabase.from('empresas').select('*').limit(1).single();
+        if (empData) setEmpresa(empData);
+
+        const { data: sucData } = await supabase.from('sucursales').select('*');
+        if (sucData && sucData.length > 0) {
+          setSucursales(sucData);
+          setSucursalActiva(sucData[0]);
+        }
+      } catch (err) {
+        console.log('Conexión en modo local/fallback activa:', err);
+      }
+    }
+
+    sincronizarConSupabase();
+  }, [supabase]);
+
+  // Cargar datos persistidos en localStorage si no vienen de Supabase
   useEffect(() => {
     try {
       const savedProds = localStorage.getItem('erp_productos');
@@ -105,11 +141,11 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
       if (savedMovs) setMovimientos(JSON.parse(savedMovs));
       if (savedEmpresa) setEmpresa(JSON.parse(savedEmpresa));
     } catch {
-      // Ignorar error de parsing
+      // Ignore parse error
     }
   }, []);
 
-  // Guardar en LocalStorage cada vez que cambien para persistencia
+  // Persistir en LocalStorage
   useEffect(() => {
     try {
       localStorage.setItem('erp_productos', JSON.stringify(productos));
@@ -122,15 +158,8 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     }
   }, [productos, ventas, clientes, movimientos, empresa]);
 
-  const mostrarNotificacion = useCallback((mensaje: string, tipo: 'success' | 'error' | 'info' = 'success') => {
-    setNotificacion({ mensaje, tipo });
-    setTimeout(() => {
-      setNotificacion(null);
-    }, 4000);
-  }, []);
-
   // Agregar Producto
-  const agregarProducto = (nuevoProd: Omit<Producto, 'id' | 'created_at' | 'updated_at'>) => {
+  const agregarProducto = async (nuevoProd: Omit<Producto, 'id' | 'created_at' | 'updated_at'>) => {
     const id = `p-${Date.now()}`;
     const prod: Producto = {
       ...nuevoProd,
@@ -140,7 +169,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     };
     setProductos(prev => [prod, ...prev]);
 
-    // Registrar movimiento inicial de Kardex si tiene stock
+    // Registrar movimiento de Kardex si trae stock inicial
     if (prod.stock_actual && prod.stock_actual > 0) {
       const mov: MovimientoInventario = {
         id: `m-${Date.now()}`,
@@ -159,7 +188,22 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
       setMovimientos(prev => [mov, ...prev]);
     }
 
-    mostrarNotificacion(`Producto "${prod.nombre}" agregado con éxito.`, 'success');
+    try {
+      // Opcionalmente persistir en Supabase si está disponible
+      await supabase.from('productos').insert([{
+        nombre: prod.nombre,
+        sku: prod.sku,
+        codigo_barras: prod.codigo_barras,
+        precio_compra: prod.precio_compra,
+        precio_venta: prod.precio_venta,
+        stock_minimo: prod.stock_minimo,
+        unidad_medida: prod.unidad_medida,
+      }]);
+    } catch {
+      // Silencioso si no hay tabla aún
+    }
+
+    mostrarNotificacion(`Producto "${prod.nombre}" registrado con éxito.`, 'success');
   };
 
   // Actualizar Producto
@@ -168,14 +212,14 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     mostrarNotificacion('Producto actualizado correctamente.', 'success');
   };
 
-  // Eliminar Producto (Desactivar)
+  // Eliminar Producto
   const eliminarProducto = (id: string) => {
     setProductos(prev => prev.map(p => p.id === id ? { ...p, activo: false } : p));
     mostrarNotificacion('Producto desactivado del catálogo.', 'info');
   };
 
   // Agregar Cliente
-  const agregarCliente = (nuevo: Omit<Cliente, 'id' | 'created_at'>) => {
+  const agregarCliente = async (nuevo: Omit<Cliente, 'id' | 'created_at'>) => {
     const cliente: Cliente = {
       ...nuevo,
       id: `cli-${Date.now()}`,
@@ -192,18 +236,18 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Agregar Proveedor
-  const agregarProveedor = (nuevo: Omit<Proveedor, 'id' | 'created_at'>) => {
+  const agregarProveedor = async (nuevo: Omit<Proveedor, 'id' | 'created_at'>) => {
     const prov: Proveedor = {
       ...nuevo,
       id: `prov-${Date.now()}`,
       created_at: new Date().toISOString(),
     };
     setProveedores(prev => [prov, ...prev]);
-    mostrarNotificacion(`Proveedor "${prov.nombre}" agregado.`, 'success');
+    mostrarNotificacion(`Proveedor "${prov.nombre}" registrado.`, 'success');
   };
 
   // Agregar Categoría
-  const agregarCategoria = (nuevo: Omit<Categoria, 'id' | 'created_at'>) => {
+  const agregarCategoria = async (nuevo: Omit<Categoria, 'id' | 'created_at'>) => {
     const cat: Categoria = {
       ...nuevo,
       id: `cat-${Date.now()}`,
@@ -213,7 +257,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     mostrarNotificacion(`Categoría "${cat.nombre}" agregada.`, 'success');
   };
 
-  // PROCESAR VENTA ATÓMICA CON DESCUENTO DE STOCK Y KARDEX
+  // Procesar Venta Atómica con Descuento de Stock y Kardex
   const procesarVenta = (data: {
     clienteId: string | null;
     items: VentaItem[];
@@ -239,7 +283,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     const nextFolio = (ventas[0]?.numero_folio || 1000) + 1;
     const ahora = new Date().toISOString();
 
-    // 2. Crear registro de venta
+    // 2. Crear cabecera de la venta
     const nuevaVenta: Venta = {
       id: ventaId,
       empresa_id: empresa.id,
@@ -258,7 +302,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
       cliente: clientes.find(c => c.id === data.clienteId),
     };
 
-    // 3. Generar movimientos de inventario y actualizar stock de productos
+    // 3. Generar movimientos de inventario y actualizar stock
     const nuevosMovimientos: MovimientoInventario[] = [];
     const prodsActualizados = [...productos];
 
@@ -269,14 +313,12 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
         const stockAnt = prod.stock_actual ?? 0;
         const stockPost = Math.max(0, stockAnt - item.cantidad);
 
-        // Descontar stock
         prodsActualizados[pIndex] = {
           ...prod,
           stock_actual: stockPost,
           updated_at: ahora,
         };
 
-        // Movimiento Kardex
         nuevosMovimientos.push({
           id: `m-${Date.now()}-${item.producto_id}`,
           empresa_id: empresa.id,
@@ -303,7 +345,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     return { success: true, ventaId, folio: nextFolio };
   };
 
-  // Ajuste manual de stock (Entradas / Mermas / Ajustes)
+  // Ajuste manual de stock
   const ajustarStock = (
     productoId: string, 
     cantidadAjuste: number, 
@@ -363,7 +405,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
         procesarVenta,
         movimientos,
         ajustarStock,
-        isDemoMode,
+        isOnlineSupabase,
         notificacion,
         mostrarNotificacion,
       }}

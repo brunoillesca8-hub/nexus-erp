@@ -10,7 +10,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ onToggleMobileMenu }: NavbarProps) {
-  const { empresa, sucursales, sucursalActiva, setSucursalActiva, rolActual, setRolActual, isDemoMode } = useERP();
+  const { empresa, sucursales, sucursalActiva, setSucursalActiva, rolActual, setRolActual, isOnlineSupabase } = useERP();
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white/95 px-4 sm:px-6 backdrop-blur transition-all">
@@ -31,11 +31,13 @@ export function Navbar({ onToggleMobileMenu }: NavbarProps) {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-sm font-bold text-slate-900 line-clamp-1">{empresa.nombre}</h1>
-              {isDemoMode && (
-                <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 border border-blue-200">
-                  <Sparkles className="w-3 h-3" /> Multi-tenant
-                </span>
-              )}
+              <span className={`hidden sm:inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
+                isOnlineSupabase 
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                  : 'bg-blue-50 text-blue-700 border-blue-200'
+              }`}>
+                <Sparkles className="w-3 h-3" /> {isOnlineSupabase ? 'Supabase Online' : 'Multi-tenant'}
+              </span>
             </div>
             <p className="text-xs text-slate-500">{empresa.rut_identificador || 'RUT no registrado'}</p>
           </div>

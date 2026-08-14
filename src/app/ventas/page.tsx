@@ -23,7 +23,8 @@ import {
   CreditCard,
   TrendingUp,
   DollarSign,
-  Clock
+  Clock,
+  Package
 } from 'lucide-react';
 import { Venta } from '@/types/database.types';
 import * as XLSX from 'xlsx';
@@ -68,14 +69,18 @@ export default function HistorialVentasPage() {
   // Filtrado Multidimensional
   const ventasFiltradas = useMemo(() => {
     return ventas.filter(v => {
-      // 1. Filtro de Texto (Folio, Cliente, Notas)
+      // 1. Filtro de Texto (Folio, Cliente, Notas o Producto)
       const q = filtroBusqueda.toLowerCase().trim();
       if (q) {
         const matchFolio = v.numero_folio.toString().includes(q);
         const matchCliente = v.cliente?.nombre && v.cliente.nombre.toLowerCase().includes(q);
         const matchRut = v.cliente?.rut_identificador && v.cliente.rut_identificador.toLowerCase().includes(q);
         const matchMetodo = v.metodo_pago.toLowerCase().includes(q);
-        if (!matchFolio && !matchCliente && !matchRut && !matchMetodo) return false;
+        const matchProducto = v.detalles?.some(d => {
+          const prod = productos.find(p => p.id === d.producto_id);
+          return prod?.nombre.toLowerCase().includes(q) || prod?.sku.includes(q);
+        });
+        if (!matchFolio && !matchCliente && !matchRut && !matchMetodo && !matchProducto) return false;
       }
 
       // 2. Filtro por Rango de Fechas
@@ -88,7 +93,7 @@ export default function HistorialVentasPage() {
       // 3. Filtro por Método de Pago
       if (filtroMetodoPago && v.metodo_pago !== filtroMetodoPago) return false;
 
-      // 4. Filtro por Categoría (Revisa si la venta tiene al menos un item de esa categoría)
+      // 4. Filtro por Categoría
       if (filtroCategoria) {
         const tieneCategoria = v.detalles?.some(d => {
           const prod = productos.find(p => p.id === d.producto_id);
@@ -129,7 +134,22 @@ export default function HistorialVentasPage() {
     };
   }, [ventasFiltradas]);
 
-  // Exportar Ventas a Excel (.xlsx) con desglose detallado
+  // Función Helper para obtener descripción legible de productos de una venta
+  const obtenerDescripcionProductos = (v: Venta) => {
+    if (!v.detalles || v.detalles.length === 0) return 'Venta General';
+    return v.detalles.map(d => {
+      const prod = productos.find(p => p.id === d.producto_id);
+      return `${prod?.nombre || 'Producto'} (x${d.cantidad})`;
+    }).join(', ');
+  };
+
+  // Función Helper para obtener cantidad total de unidades vendidas en una venta
+  const obtenerCantidadTotalUnidades = (v: Venta) => {
+    if (!v.detalles || v.detalles.length === 0) return 1;
+    return v.detalles.reduce((acc, d) => acc + d.cantidad, 0);
+  };
+
+  // Exportar Ventas a Excel (.xlsx) con columnas completas solicitadas
   const exportarVentasExcel = () => {
     const filasDetalladas: any[] = [];
 
@@ -141,6 +161,7 @@ export default function HistorialVentasPage() {
       if (v.detalles && v.detalles.length > 0) {
         v.detalles.forEach(d => {
           const prod = productos.find(p => p.id === d.producto_id);
+          const skuLimpio = prod?.sku ? prod.sku.replace(/\D/g, '') || prod.sku : '1001';
           const cat = categorias.find(c => c.id === prod?.categoria_id)?.nombre || 'General';
           const prov = proveedores.find(p => p.id === prod?.proveedor_id)?.nombre || 'Sin Proveedor';
           const gananciaItem = (d.precio_unitario - d.costo_unitario) * d.cantidad;
@@ -150,8 +171,8 @@ export default function HistorialVentasPage() {
             'Fecha y Hora': fechaFormateada,
             'Cliente': clienteNombre,
             'RUT Cliente': clienteRut,
-            'SKU': prod?.sku || 'N/A',
-            'Producto Vendido': prod?.nombre || 'Producto',
+            'SKU': skuLimpio,
+            'Descripción': prod?.nombre || 'Producto',
             'Categoría': cat,
             'Proveedor': prov,
             'Cantidad': d.cantidad,
@@ -169,8 +190,8 @@ export default function HistorialVentasPage() {
           'Fecha y Hora': fechaFormateada,
           'Cliente': clienteNombre,
           'RUT Cliente': clienteRut,
-          'SKU': 'VARIOS',
-          'Producto Vendido': 'Venta Registrada',
+          'SKU': '1001',
+          'Descripción': 'Venta Registrada',
           'Categoría': 'General',
           'Proveedor': 'General',
           'Cantidad': 1,
@@ -229,14 +250,17 @@ export default function HistorialVentasPage() {
             </div>
 
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5 text-xs">
-              <span className="font-bold text-slate-700 block pb-1 border-b border-slate-200">Detalle de Productos:</span>
+              <span className="font-bold text-slate-700 block pb-1 border-b border-slate-200">Descripción de Productos:</span>
               {ventaDetalle.detalles?.map(d => {
                 const prod = productos.find(p => p.id === d.producto_id);
+                const skuLimpio = prod?.sku ? prod.sku.replace(/\D/g, '') || prod.sku : '1001';
                 return (
                   <div key={d.id} className="flex justify-between items-center py-1">
                     <div>
                       <span className="font-semibold text-slate-900">{prod?.nombre || 'Producto'}</span>
-                      <span className="text-[11px] text-slate-400 block">{d.cantidad} un. x {formatCLP(d.precio_unitario)}</span>
+                      <span className="text-[11px] text-slate-400 block font-mono">
+                        SKU {skuLimpio} • {d.cantidad} un. x {formatCLP(d.precio_unitario)}
+                      </span>
                     </div>
                     <span className="font-bold text-slate-900">{formatCLP(d.subtotal)}</span>
                   </div>
@@ -275,7 +299,7 @@ export default function HistorialVentasPage() {
             Registro Histórico de Ventas
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Auditoría de boletas con fecha y hora exacta, desglose tributario y exportación a Excel.
+            Auditoría de boletas con fecha y hora exacta, descripción de productos y exportación a Excel.
           </p>
         </div>
 
@@ -367,7 +391,7 @@ export default function HistorialVentasPage() {
             <Search className="w-4 h-4 text-slate-400 ml-3 absolute pointer-events-none" />
             <input
               type="text"
-              placeholder="Folio, Cliente o RUT..."
+              placeholder="Folio, Cliente, Producto o RUT..."
               value={filtroBusqueda}
               onChange={e => setFiltroBusqueda(e.target.value)}
               className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500"
@@ -422,7 +446,7 @@ export default function HistorialVentasPage() {
         </div>
       </div>
 
-      {/* Tabla de Ventas con Fecha y Hora Exacta */}
+      {/* Tabla de Ventas con columnas Descripción y Cantidad */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
@@ -431,7 +455,8 @@ export default function HistorialVentasPage() {
                 <th className="px-4 py-3.5">Folio</th>
                 <th className="px-4 py-3.5">Fecha y Hora</th>
                 <th className="px-4 py-3.5">Cliente</th>
-                <th className="px-4 py-3.5">Ítems Vendidos</th>
+                <th className="px-4 py-3.5">Descripción</th>
+                <th className="px-4 py-3.5 text-center">Cantidad</th>
                 <th className="px-4 py-3.5">Medio de Pago</th>
                 <th className="px-4 py-3.5 text-right">Total (CLP)</th>
                 <th className="px-4 py-3.5 text-center">Acciones</th>
@@ -440,54 +465,64 @@ export default function HistorialVentasPage() {
             <tbody className="divide-y divide-slate-100">
               {ventasFiltradas.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-slate-400">
+                  <td colSpan={8} className="px-4 py-12 text-center text-slate-400">
                     No se encontraron ventas para los filtros y fechas seleccionadas.
                   </td>
                 </tr>
               ) : (
-                ventasFiltradas.map((v) => (
-                  <tr key={v.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-4 py-3 font-mono font-bold text-blue-600">
-                      #{v.numero_folio}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600 font-medium">
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{formatDate(v.fecha_venta)}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 font-semibold text-slate-800">
-                      {v.cliente?.nombre || 'Cliente General'}
-                      {v.cliente?.rut_identificador && (
-                        <span className="block text-[10px] text-slate-400 font-mono">
-                          {v.cliente.rut_identificador}
+                ventasFiltradas.map((v) => {
+                  const descripcion = obtenerDescripcionProductos(v);
+                  const cantidadTotal = obtenerCantidadTotalUnidades(v);
+
+                  return (
+                    <tr key={v.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="px-4 py-3 font-mono font-bold text-blue-600">
+                        #{v.numero_folio}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600 font-medium whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{formatDate(v.fecha_venta)}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 font-semibold text-slate-800">
+                        {v.cliente?.nombre || 'Cliente General'}
+                        {v.cliente?.rut_identificador && (
+                          <span className="block text-[10px] text-slate-400 font-mono">
+                            {v.cliente.rut_identificador}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 font-medium text-slate-700 max-w-[260px]">
+                        <span className="line-clamp-2" title={descripcion}>
+                          {descripcion}
                         </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">
-                      <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-[11px] font-semibold">
-                        {v.detalles?.length || 1} producto(s)
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">
-                        {v.metodo_pago.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right font-black text-slate-900 text-sm">
-                      {formatCLP(v.total)}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <button
-                        onClick={() => setVentaDetalle(v)}
-                        className="inline-flex items-center gap-1 px-3 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 text-[11px] font-bold transition-colors cursor-pointer"
-                      >
-                        <Eye className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Ver Boleta</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="px-4 py-3 text-center font-bold">
+                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-800 font-mono">
+                          {cantidadTotal} u.
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">
+                          {v.metodo_pago.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right font-black text-slate-900 text-sm whitespace-nowrap">
+                        {formatCLP(v.total)}
+                      </td>
+                      <td className="px-4 py-3 text-center whitespace-nowrap">
+                        <button
+                          onClick={() => setVentaDetalle(v)}
+                          className="inline-flex items-center gap-1 px-3 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 text-[11px] font-bold transition-colors cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Ver Boleta</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

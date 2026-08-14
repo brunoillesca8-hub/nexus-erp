@@ -820,10 +820,10 @@ export default function ProductosPage() {
                           )}
                         </button>
                       </td>
-                      <td className="px-4 py-3 font-mono font-medium text-slate-800">
-                        <span>{p.sku}</span>
+                      <td className="px-4 py-3 font-mono font-bold text-slate-900">
+                        <span>{p.sku.replace(/\D/g, '') || p.sku}</span>
                         {p.codigo_barras && (
-                          <span className="block text-[10px] text-slate-400">{p.codigo_barras}</span>
+                          <span className="block text-[10px] text-slate-400 font-normal">{p.codigo_barras}</span>
                         )}
                       </td>
                       <td className="px-4 py-3 font-semibold text-slate-900 max-w-[240px]">

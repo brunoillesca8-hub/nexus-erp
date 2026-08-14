@@ -97,11 +97,14 @@ export default function InventarioPage() {
                   className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500"
                 >
                   <option value="">Seleccionar Producto</option>
-                  {productos.map(p => (
-                    <option key={p.id} value={p.id}>
-                      {p.nombre} (Stock actual: {p.stock_actual ?? 0})
-                    </option>
-                  ))}
+                  {productos.map(p => {
+                    const skuNum = p.sku.replace(/\D/g, '') || p.sku;
+                    return (
+                      <option key={p.id} value={p.id}>
+                        {skuNum} - {p.nombre} (Stock actual: {p.stock_actual ?? 0} {p.unidad_medida || 'u.'})
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 
@@ -110,37 +113,37 @@ export default function InventarioPage() {
                 <select
                   value={tipoAjuste}
                   onChange={e => setTipoAjuste(e.target.value as TipoMovimiento)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500 font-semibold"
                 >
-                  <option value="ENTRADA_COMPRA">📥 ENTRADA_COMPRA (Aumenta stock)</option>
-                  <option value="AJUSTE_POSITIVO">➕ AJUSTE_POSITIVO (Conteo físico favorable)</option>
-                  <option value="AJUSTE_NEGATIVO">➖ AJUSTE_NEGATIVO (Descuadre físico)</option>
-                  <option value="MERMA_DANADO">⚠️ MERMA_DANADO (Producto roto/vencido)</option>
+                  <option value="ENTRADA_COMPRA">📥 ENTRADA_COMPRA (Recepción Proveedor)</option>
+                  <option value="AJUSTE_POSITIVO">➕ AJUSTE_POSITIVO (Sobrante físico)</option>
+                  <option value="AJUSTE_NEGATIVO">➖ AJUSTE_NEGATIVO (Faltante físico)</option>
+                  <option value="MERMA_DANADO">🗑️ MERMA_DANADO (Producto roto/vencido)</option>
                   <option value="DEVOLUCION_PROVEEDOR">↩️ DEVOLUCION_PROVEEDOR</option>
                 </select>
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-slate-700">Cantidad de Unidades *</label>
+                <label className="font-bold text-slate-700">Cantidad *</label>
                 <input
                   type="number"
                   min="1"
                   required
                   value={cantidadAjuste}
                   onChange={e => setCantidadAjuste(Number(e.target.value))}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500 font-bold"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-slate-700">Motivo / Justificación *</label>
-                <textarea
+                <label className="font-bold text-slate-700">Motivo / Factura de Compra *</label>
+                <input
+                  type="text"
                   required
-                  rows={2}
-                  placeholder="Ej. Factura N° 8900 proveedor o rotura durante reposición"
+                  placeholder="Ej. Factura #4589 Proveedor Distribuidora Sur"
                   value={motivoAjuste}
                   onChange={e => setMotivoAjuste(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500 resize-none"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500"
                 />
               </div>
 
@@ -193,7 +196,7 @@ export default function InventarioPage() {
           onClick={() => setTab('stock')}
           className={`pb-3 border-b-2 transition-all cursor-pointer ${
             tab === 'stock'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-blue-600 text-blue-600 font-bold'
               : 'border-transparent text-slate-400 hover:text-slate-700'
           }`}
         >
@@ -203,7 +206,7 @@ export default function InventarioPage() {
           onClick={() => setTab('politicas')}
           className={`pb-3 border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
             tab === 'politicas'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-blue-600 text-blue-600 font-bold'
               : 'border-transparent text-slate-400 hover:text-slate-700'
           }`}
         >
@@ -214,7 +217,7 @@ export default function InventarioPage() {
           onClick={() => setTab('kardex')}
           className={`pb-3 border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
             tab === 'kardex'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-blue-600 text-blue-600 font-bold'
               : 'border-transparent text-slate-400 hover:text-slate-700'
           }`}
         >
@@ -241,14 +244,16 @@ export default function InventarioPage() {
                 {productos.map((p) => {
                   const stock = p.stock_actual ?? 0;
                   const critico = stock <= p.stock_minimo;
+                  const skuNum = p.sku.replace(/\D/g, '') || p.sku;
+                  const unidad = p.unidad_medida || 'u.';
 
                   return (
                     <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="px-4 py-3 font-mono font-bold text-slate-800">{p.sku}</td>
+                      <td className="px-4 py-3 font-mono font-bold text-slate-800">{skuNum}</td>
                       <td className="px-4 py-3 font-semibold text-slate-900">{p.nombre}</td>
-                      <td className="px-4 py-3 text-center text-slate-500">{p.stock_minimo} unidades</td>
+                      <td className="px-4 py-3 text-center text-slate-500">{p.stock_minimo} {unidad}</td>
                       <td className="px-4 py-3 text-center">
-                        <span className="font-extrabold text-sm text-slate-900">{stock}</span>
+                        <span className="font-extrabold text-sm text-slate-900">{stock} {unidad}</span>
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
@@ -301,11 +306,12 @@ export default function InventarioPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {politicas.map((pol) => {
+                    const skuNum = pol.sku.replace(/\D/g, '') || pol.sku;
                     return (
                       <tr key={pol.productoId} className="hover:bg-slate-50/70 transition-colors">
                         <td className="px-4 py-3">
                           <span className="font-bold text-slate-900 block">{pol.nombre}</span>
-                          <span className="font-mono text-[10px] text-slate-400">{pol.sku}</span>
+                          <span className="font-mono text-[11px] font-bold text-slate-500">SKU {skuNum}</span>
                         </td>
                         <td className="px-4 py-3 text-center font-bold text-slate-700 font-mono">
                           ~{pol.demandaPromedioDiaria} un/día
@@ -357,6 +363,7 @@ export default function InventarioPage() {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-400 uppercase font-bold text-[10px] tracking-wider border-b border-slate-100">
                 <tr>
+                  <th className="px-4 py-3.5">SKU</th>
                   <th className="px-4 py-3.5">Fecha y Hora</th>
                   <th className="px-4 py-3.5">Producto</th>
                   <th className="px-4 py-3.5">Tipo Movimiento</th>
@@ -369,16 +376,20 @@ export default function InventarioPage() {
               <tbody className="divide-y divide-slate-100">
                 {movimientos.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-slate-400">
+                    <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
                       No hay movimientos de inventario registrados aún.
                     </td>
                   </tr>
                 ) : (
                   movimientos.map((m) => {
                     const prod = productos.find(p => p.id === m.producto_id) || m.producto;
+                    const skuNum = prod?.sku ? prod.sku.replace(/\D/g, '') || prod.sku : '1001';
 
                     return (
                       <tr key={m.id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="px-4 py-3 font-mono font-bold text-slate-700">
+                          {skuNum}
+                        </td>
                         <td className="px-4 py-3 text-slate-500 font-medium whitespace-nowrap">
                           {formatDate(m.created_at)}
                         </td>

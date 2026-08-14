@@ -30,6 +30,7 @@ interface ERPContextType {
   empresa: Empresa;
   setEmpresa: (emp: Empresa) => void;
   sucursales: Sucursal[];
+  actualizarNombreSucursal: (nombre: string) => void;
   sucursalActiva: Sucursal;
   setSucursalActiva: (suc: Sucursal) => void;
   rolActual: RolUsuario;
@@ -40,6 +41,7 @@ interface ERPContextType {
   categorias: Categoria[];
   proveedores: Proveedor[];
   clientes: Cliente[];
+  generarSiguienteSKU: () => string;
   
   // Operaciones Catálogo
   agregarProducto: (producto: Omit<Producto, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
@@ -100,6 +102,29 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     }, 4000);
   }, []);
 
+  // Generador de SKU correlativo autoincrementable automático
+  const generarSiguienteSKU = useCallback(() => {
+    let maxNum = 0;
+    productos.forEach(p => {
+      const match = p.sku.match(/SKU-(\d+)/i);
+      if (match && match[1]) {
+        const n = parseInt(match[1], 10);
+        if (n > maxNum) maxNum = n;
+      }
+    });
+    const nextNum = maxNum + 1;
+    return `SKU-${nextNum.toString().padStart(4, '0')}`;
+  }, [productos]);
+
+  // Actualizar nombre del local principal
+  const actualizarNombreSucursal = (nombre: string) => {
+    const actualizada = { ...sucursalActiva, nombre };
+    setSucursalActiva(actualizada);
+    setSucursales([actualizada]);
+    localStorage.setItem('erp_sucursal', JSON.stringify(actualizada));
+    mostrarNotificacion(`Nombre del local actualizado a "${nombre}".`, 'success');
+  };
+
   // Intentar sincronizar con Supabase Cloud
   useEffect(() => {
     async function sincronizarConSupabase() {
@@ -126,7 +151,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     sincronizarConSupabase();
   }, [supabase]);
 
-  // Cargar datos persistidos en localStorage si no vienen de Supabase
+  // Cargar datos persistidos en localStorage
   useEffect(() => {
     try {
       const savedProds = localStorage.getItem('erp_productos');
@@ -134,12 +159,20 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
       const savedClientes = localStorage.getItem('erp_clientes');
       const savedMovs = localStorage.getItem('erp_movimientos');
       const savedEmpresa = localStorage.getItem('erp_empresa');
+      const savedCats = localStorage.getItem('erp_categorias');
+      const savedSuc = localStorage.getItem('erp_sucursal');
 
       if (savedProds) setProductos(JSON.parse(savedProds));
       if (savedVentas) setVentas(JSON.parse(savedVentas));
       if (savedClientes) setClientes(JSON.parse(savedClientes));
       if (savedMovs) setMovimientos(JSON.parse(savedMovs));
       if (savedEmpresa) setEmpresa(JSON.parse(savedEmpresa));
+      if (savedCats) setCategorias(JSON.parse(savedCats));
+      if (savedSuc) {
+        const parsedSuc = JSON.parse(savedSuc);
+        setSucursalActiva(parsedSuc);
+        setSucursales([parsedSuc]);
+      }
     } catch {
       // Ignore parse error
     }
@@ -153,10 +186,11 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('erp_clientes', JSON.stringify(clientes));
       localStorage.setItem('erp_movimientos', JSON.stringify(movimientos));
       localStorage.setItem('erp_empresa', JSON.stringify(empresa));
+      localStorage.setItem('erp_categorias', JSON.stringify(categorias));
     } catch {
       // Ignore storage errors
     }
-  }, [productos, ventas, clientes, movimientos, empresa]);
+  }, [productos, ventas, clientes, movimientos, empresa, categorias]);
 
   // Agregar Producto
   const agregarProducto = async (nuevoProd: Omit<Producto, 'id' | 'created_at' | 'updated_at'>) => {
@@ -189,7 +223,6 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      // Opcionalmente persistir en Supabase si está disponible
       await supabase.from('productos').insert([{
         nombre: prod.nombre,
         sku: prod.sku,
@@ -203,7 +236,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
       // Silencioso si no hay tabla aún
     }
 
-    mostrarNotificacion(`Producto "${prod.nombre}" registrado con éxito.`, 'success');
+    mostrarNotificacion(`Producto "${prod.nombre}" registrado con éxito con SKU: ${prod.sku}.`, 'success');
   };
 
   // Actualizar Producto
@@ -253,11 +286,11 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
       id: `cat-${Date.now()}`,
       created_at: new Date().toISOString(),
     };
-    setCategorias(prev => [cat, ...prev]);
-    mostrarNotificacion(`Categoría "${cat.nombre}" agregada.`, 'success');
+    setCategorias(prev => [...prev, cat]);
+    mostrarNotificacion(`Categoría "${cat.nombre}" agregada con éxito.`, 'success');
   };
 
-  // Procesar Venta Atómica con Descuento de Stock y Kardex
+  // Procesar Venta Atómica con Descuento de Stock, Kardex y Folio desde 100
   const procesarVenta = (data: {
     clienteId: string | null;
     items: VentaItem[];
@@ -268,7 +301,6 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     metodoPago: Venta['metodo_pago'];
     notas?: string;
   }) => {
-    // 1. REGLA ESTRICTA: Validar stock de cada producto. Si es cero o menor a la cantidad solicitada -> BLOQUEO
     for (const item of data.items) {
       const prod = productos.find(p => p.id === item.producto_id);
       const stockDisponible = prod?.stock_actual ?? 0;
@@ -280,10 +312,22 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     }
 
     const ventaId = `v-${Date.now()}`;
-    const nextFolio = (ventas[0]?.numero_folio || 1000) + 1;
+    
+    // Folio comienza en 100 si es la primera venta, de lo contrario se autoincrementa
+    const nextFolio = ventas.length > 0 ? (ventas[0]?.numero_folio || 99) + 1 : 100;
     const ahora = new Date().toISOString();
 
-    // 2. Crear cabecera de la venta
+    const detallesCreados = data.items.map((item, idx) => ({
+      id: `d-${Date.now()}-${idx}`,
+      venta_id: ventaId,
+      producto_id: item.producto_id,
+      cantidad: item.cantidad,
+      precio_unitario: item.precio_unitario,
+      costo_unitario: item.costo_unitario,
+      descuento: item.descuento || 0,
+      subtotal: item.subtotal,
+    }));
+
     const nuevaVenta: Venta = {
       id: ventaId,
       empresa_id: empresa.id,
@@ -300,9 +344,9 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
       notas: data.notas || null,
       fecha_venta: ahora,
       cliente: clientes.find(c => c.id === data.clienteId),
+      detalles: detallesCreados,
     };
 
-    // 3. Generar movimientos de inventario y actualizar stock
     const nuevosMovimientos: MovimientoInventario[] = [];
     const prodsActualizados = [...productos];
 
@@ -345,7 +389,6 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     return { success: true, ventaId, folio: nextFolio };
   };
 
-  // Ajuste manual de stock
   const ajustarStock = (
     productoId: string, 
     cantidadAjuste: number, 
@@ -386,6 +429,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
         empresa,
         setEmpresa,
         sucursales,
+        actualizarNombreSucursal,
         sucursalActiva,
         setSucursalActiva,
         rolActual,
@@ -394,6 +438,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
         categorias,
         proveedores,
         clientes,
+        generarSiguienteSKU,
         agregarProducto,
         actualizarProducto,
         eliminarProducto,

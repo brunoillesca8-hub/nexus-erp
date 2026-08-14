@@ -17,7 +17,8 @@ import {
   Clock, 
   TrendingUp, 
   X,
-  PlusCircle
+  PlusCircle,
+  FileText
 } from 'lucide-react';
 import { useERP } from '@/context/erp-context';
 
@@ -56,6 +57,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     {
       group: 'Inteligencia de Negocio',
       items: [
+        { name: 'Informes Ejecutivos PDF', href: '/analitica/reportes', icon: FileText, highlight: true, roles: ['ADMIN', 'ANALISTA'] },
         { name: 'Top 10 Productos (Curvas)', href: '/analitica/top-productos', icon: TrendingUp, roles: ['ADMIN', 'ANALISTA', 'VENDEDOR'] },
         { name: 'Matriz ABC - XYZ', href: '/analitica/matriz-abc-xyz', icon: Layers, roles: ['ADMIN', 'ANALISTA'] },
         { name: 'Rentabilidad & Márgenes', href: '/analitica/rentabilidad', icon: BarChart3, roles: ['ADMIN', 'ANALISTA'] },

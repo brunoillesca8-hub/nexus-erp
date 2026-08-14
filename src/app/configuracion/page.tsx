@@ -6,15 +6,16 @@ import { Settings, Building2, Store, Upload, Check, AlertCircle, FileSpreadsheet
 import Papa from 'papaparse';
 
 export default function ConfiguracionPage() {
-  const { empresa, setEmpresa, sucursales, agregarProducto, mostrarNotificacion } = useERP();
+  const { empresa, setEmpresa, sucursales, actualizarNombreSucursal, agregarProducto, mostrarNotificacion } = useERP();
 
-  // Estados de edición de empresa
+  // Estados de edición de empresa y local
   const [nombre, setNombre] = useState(empresa.nombre);
   const [rut, setRut] = useState(empresa.rut_identificador || '');
   const [telefono, setTelefono] = useState(empresa.telefono || '');
   const [email, setEmail] = useState(empresa.email || '');
   const [direccion, setDireccion] = useState(empresa.direccion || '');
   const [iva, setIva] = useState(empresa.iva_porcentaje || 19);
+  const [nombreLocal, setNombreLocal] = useState(sucursales[0]?.nombre || 'Local Principal');
 
   // Estados de importación CSV
   const [previewDatos, setPreviewDatos] = useState<any[]>([]);
@@ -190,30 +191,50 @@ export default function ConfiguracionPage() {
           </form>
         </div>
 
-        {/* Sucursales Activas */}
+        {/* Local Comercial Principal */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
             <Store className="w-5 h-5 text-blue-600" />
-            <h3 className="font-bold text-slate-900 text-sm">Sucursales Habilitadas</h3>
+            <h3 className="font-bold text-slate-900 text-sm">Local Comercial de Venta</h3>
           </div>
 
-          <div className="space-y-3">
-            {sucursales.map(s => (
-              <div key={s.id} className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900">{s.nombre}</span>
-                    {s.es_principal && (
-                      <span className="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                        Matriz
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-slate-500 mt-0.5">{s.direccion || 'Sin dirección'}</p>
+          <div className="space-y-4 text-xs">
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+              <div className="space-y-1">
+                <label className="font-bold text-slate-700">Nombre del Local Comercial *</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={nombreLocal}
+                    onChange={e => setNombreLocal(e.target.value)}
+                    placeholder="Ej. Local Centro, Tienda Matriz, Sala de Ventas..."
+                    className="flex-1 p-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 font-semibold outline-none focus:border-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (nombreLocal.trim()) {
+                        actualizarNombreSucursal(nombreLocal.trim());
+                      }
+                    }}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-xs cursor-pointer"
+                  >
+                    Guardar
+                  </button>
                 </div>
-                <span className="font-mono text-slate-400 font-bold">{s.codigo}</span>
               </div>
-            ))}
+
+              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+                <span>Código Interno: <strong className="font-mono text-slate-700">{sucursales[0]?.codigo || 'LOC-01'}</strong></span>
+                <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  Local Activo
+                </span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-400">
+              Este es el nombre del local comercial que aparecerá en el encabezado, en las boletas y en los reportes de ventas.
+            </p>
           </div>
         </div>
       </div>

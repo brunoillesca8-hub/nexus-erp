@@ -1,8 +1,47 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Component, ErrorInfo, ReactNode } from 'react';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
-import { Camera, X, RefreshCw, AlertCircle, CheckCircle2, Laptop, Smartphone, Barcode, ArrowRight } from 'lucide-react';
+import { Camera, X, RefreshCw, AlertCircle, CheckCircle2, Barcode, ArrowRight } from 'lucide-react';
+
+// Error Boundary a prueba de fallos para evitar que la página de Vercel se caiga
+class ScannerErrorBoundary extends Component<{ children: ReactNode; onClose: () => void }, { hasError: boolean }> {
+  constructor(props: { children: ReactNode; onClose: () => void }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Error capturado en escáner:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4 border border-slate-200">
+            <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
+            <h3 className="font-bold text-slate-900 text-sm">Cámara no disponible en este dispositivo</h3>
+            <p className="text-xs text-slate-500">
+              Usa una pistola lectora USB/Bluetooth o escribe el código directamente en el buscador del POS.
+            </p>
+            <button
+              onClick={this.props.onClose}
+              className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 interface BarcodeScannerModalProps {
   isOpen: boolean;
@@ -10,7 +49,7 @@ interface BarcodeScannerModalProps {
   onScanSuccess: (barcode: string) => void;
 }
 
-export function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }: BarcodeScannerModalProps) {
+function BarcodeScannerModalInner({ isOpen, onClose, onScanSuccess }: BarcodeScannerModalProps) {
   const [scannerActive, setScannerActive] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [lastScanned, setLastScanned] = useState<string | null>(null);
@@ -20,10 +59,14 @@ export function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }: BarcodeS
   useEffect(() => {
     if (!isOpen) {
       if (scannerRef.current) {
-        if (scannerRef.current.isScanning) {
-          scannerRef.current.stop().catch(() => {});
+        try {
+          if (scannerRef.current.isScanning) {
+            scannerRef.current.stop().catch(() => {});
+          }
+          scannerRef.current.clear();
+        } catch {
+          // Ignore
         }
-        scannerRef.current.clear();
         scannerRef.current = null;
       }
       setScannerActive(false);
@@ -33,102 +76,94 @@ export function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }: BarcodeS
 
     let isMounted = true;
 
-    // Configuración con soporte EXPLÍCITO para códigos de barra 1D (EAN-13, CODE-128, etc.)
-    const html5QrCode = new Html5Qrcode('barcode-camera-reader', {
-      formatsToSupport: [
-        Html5QrcodeSupportedFormats.EAN_13,
-        Html5QrcodeSupportedFormats.EAN_8,
-        Html5QrcodeSupportedFormats.CODE_128,
-        Html5QrcodeSupportedFormats.CODE_39,
-        Html5QrcodeSupportedFormats.UPC_A,
-        Html5QrcodeSupportedFormats.UPC_E,
-        Html5QrcodeSupportedFormats.QR_CODE,
-      ],
-      verbose: false,
-    });
+    // Verificar si el navegador soporta mediaDevices
+    if (typeof window === 'undefined' || !navigator?.mediaDevices?.getUserMedia) {
+      setErrorMsg('Tu navegador no permite acceso directo a la cámara. Ingresa el código abajo.');
+      return;
+    }
 
-    scannerRef.current = html5QrCode;
+    const elementId = 'barcode-camera-reader-box';
 
-    const config = {
-      fps: 20,
-      qrbox: { width: 280, height: 140 }, // Rectángulo horizontal óptimo para códigos de barra
-      aspectRatio: 1.777778,
-    };
-
-    const iniciarCamara = async () => {
+    const timer = setTimeout(async () => {
       try {
-        const cameras = await Html5Qrcode.getCameras();
-        if (!cameras || cameras.length === 0) {
-          throw new Error('No se detectaron cámaras en este dispositivo.');
-        }
+        const domEl = document.getElementById(elementId);
+        if (!domEl) return;
 
-        // Preferir cámara trasera en celulares, o la primera disponible en PC
-        const camaraSeleccionada = cameras.find(c => 
-          c.label.toLowerCase().includes('back') || 
-          c.label.toLowerCase().includes('trasera') ||
-          c.label.toLowerCase().includes('rear') ||
-          c.label.toLowerCase().includes('environment')
-        ) || cameras[cameras.length - 1];
+        const html5QrCode = new Html5Qrcode(elementId, {
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.QR_CODE,
+          ],
+          verbose: false,
+        });
 
-        if (!isMounted) return;
+        scannerRef.current = html5QrCode;
 
-        await html5QrCode.start(
-          camaraSeleccionada.id,
-          config,
-          (decodedText) => {
-            if (!isMounted) return;
-            setLastScanned(decodedText);
-            onScanSuccess(decodedText);
-            if (typeof navigator !== 'undefined' && navigator.vibrate) {
-              navigator.vibrate(100);
-            }
-          },
-          () => {} // Callback silencioso para frames no leídos
-        );
+        const config = {
+          fps: 15,
+          qrbox: { width: 260, height: 130 },
+          aspectRatio: 1.777778,
+        };
 
-        if (isMounted) {
-          setScannerActive(true);
-          setErrorMsg(null);
-        }
-      } catch (err: any) {
-        console.warn('Fallo cámara primaria, intentando modo general:', err);
-        try {
+        const onDecoded = (decodedText: string) => {
           if (!isMounted) return;
+          setLastScanned(decodedText);
+          onScanSuccess(decodedText);
+          if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            try { navigator.vibrate(100); } catch {}
+          }
+        };
+
+        try {
           await html5QrCode.start(
             { facingMode: 'environment' },
             config,
-            (decodedText) => {
-              if (!isMounted) return;
-              setLastScanned(decodedText);
-              onScanSuccess(decodedText);
-            },
+            onDecoded,
             () => {}
           );
           if (isMounted) {
             setScannerActive(true);
             setErrorMsg(null);
           }
-        } catch (fallbackErr: any) {
+        } catch {
+          // Fallback a cámara frontal o primera disponible
+          await html5QrCode.start(
+            { facingMode: 'user' },
+            config,
+            onDecoded,
+            () => {}
+          );
           if (isMounted) {
-            setErrorMsg('Permite el acceso a la cámara en tu navegador o ingresa el código manualmente abajo.');
-            setScannerActive(false);
+            setScannerActive(true);
+            setErrorMsg(null);
           }
         }
+      } catch (err: any) {
+        if (isMounted) {
+          setErrorMsg('No se pudo abrir la cámara. Puedes escribir el código de barras abajo.');
+          setScannerActive(false);
+        }
       }
-    };
-
-    // Pequeño timeout para asegurar que el elemento DOM #barcode-camera-reader esté renderizado
-    const timer = setTimeout(() => {
-      iniciarCamara();
-    }, 150);
+    }, 200);
 
     return () => {
       isMounted = false;
       clearTimeout(timer);
-      if (html5QrCode && html5QrCode.isScanning) {
-        html5QrCode.stop().catch(() => {}).finally(() => {
-          html5QrCode.clear();
-        });
+      if (scannerRef.current) {
+        try {
+          if (scannerRef.current.isScanning) {
+            scannerRef.current.stop().catch(() => {});
+          }
+          scannerRef.current.clear();
+        } catch {
+          // Ignore
+        }
+        scannerRef.current = null;
       }
     };
   }, [isOpen, onScanSuccess]);
@@ -151,7 +186,7 @@ export function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }: BarcodeS
           <div className="flex items-center gap-2">
             <Barcode className="w-5 h-5 text-blue-400" />
             <div>
-              <h3 className="font-bold text-sm leading-tight">Escáner de Código de Barras (EAN-13 & 1D)</h3>
+              <h3 className="font-bold text-sm leading-tight">Escáner de Código de Barras</h3>
               <p className="text-[10px] text-slate-300">Apunta la cámara al código de barras</p>
             </div>
           </div>
@@ -164,9 +199,9 @@ export function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }: BarcodeS
         </div>
 
         {/* Visor de Cámara */}
-        <div className="p-4 bg-slate-950 flex flex-col items-center justify-center min-h-[280px] relative overflow-hidden">
+        <div className="p-4 bg-slate-950 flex flex-col items-center justify-center min-h-[260px] relative overflow-hidden">
           <div
-            id="barcode-camera-reader"
+            id="barcode-camera-reader-box"
             className="w-full rounded-2xl overflow-hidden bg-black text-white"
           />
 
@@ -178,37 +213,37 @@ export function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }: BarcodeS
           ) : !scannerActive ? (
             <div className="flex flex-col items-center gap-2 text-slate-400 text-xs py-10">
               <RefreshCw className="w-6 h-6 animate-spin text-blue-400" />
-              <span>Conectando cámara del dispositivo...</span>
+              <span>Iniciando visor de cámara...</span>
             </div>
           ) : null}
 
-          {/* Guía visual para centrar códigos de barra 1D */}
+          {/* Guía de enfoque */}
           {scannerActive && (
-            <div className="absolute inset-x-10 top-1/2 -translate-y-1/2 h-24 border-2 border-dashed border-emerald-400 rounded-xl pointer-events-none flex items-center justify-center bg-emerald-500/10">
-              <span className="text-[10px] font-bold text-emerald-300 bg-slate-900/90 px-2.5 py-1 rounded-full shadow-md">
-                Centra el código de barras aquí
+            <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 h-20 border-2 border-dashed border-emerald-400 rounded-xl pointer-events-none flex items-center justify-center bg-emerald-500/10">
+              <span className="text-[10px] font-bold text-emerald-300 bg-slate-900/90 px-2 py-0.5 rounded-full">
+                Centra el código aquí
               </span>
             </div>
           )}
         </div>
 
-        {/* Footer & Entrada de Código Manual de Respaldo */}
+        {/* Footer con entrada manual */}
         <div className="p-4 bg-slate-50 border-t border-slate-200 space-y-3">
           {lastScanned && (
             <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 p-2 rounded-xl">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Código detectado: <strong className="font-mono">{lastScanned}</strong> (Agregado)</span>
+              <span>Detectado: <strong className="font-mono">{lastScanned}</strong> (Agregado)</span>
             </div>
           )}
 
-          {/* Formulario rápido de ingreso manual o pistoleo */}
           <form onSubmit={handleManualSubmit} className="space-y-1">
             <label className="text-[11px] font-bold text-slate-700 block">
-              ¿O prefieres tipear / pistolear el código?
+              Ingreso rápido por código o pistola lectora:
             </label>
             <div className="flex gap-2">
               <input
                 type="text"
+                autoFocus
                 placeholder="Ej. 780000000317 o SKU..."
                 value={codigoManual}
                 onChange={e => setCodigoManual(e.target.value)}
@@ -226,13 +261,21 @@ export function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }: BarcodeS
 
           <button
             onClick={onClose}
-            className="w-full py-2.5 px-4 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs transition-colors cursor-pointer"
+            className="w-full py-2 px-4 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs transition-colors cursor-pointer"
           >
-            Listo / Volver al Carrito
+            Listo / Volver
           </button>
         </div>
 
       </div>
     </div>
+  );
+}
+
+export function BarcodeScannerModal(props: BarcodeScannerModalProps) {
+  return (
+    <ScannerErrorBoundary onClose={props.onClose}>
+      <BarcodeScannerModalInner {...props} />
+    </ScannerErrorBoundary>
   );
 }

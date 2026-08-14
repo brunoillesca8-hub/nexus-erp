@@ -518,6 +518,28 @@ DO $$ BEGIN
     CREATE POLICY "Allow public all clientes" ON clientes FOR ALL USING (true) WITH CHECK (true);
 EXCEPTION WHEN duplicate_object THEN null; END $$;
 
+-- Asegurar columna stock_actual en productos
+ALTER TABLE IF EXISTS productos ADD COLUMN IF NOT EXISTS stock_actual INT DEFAULT 0;
+
+-- 10. DATOS SEMILLA BASE (Para garantizar integridad referencial multi-dispositivo)
+INSERT INTO empresas (id, nombre, rut_identificador, direccion, email, telefono)
+VALUES ('a0000000-0000-0000-0000-000000000001', 'Mi Negocio Comercial', '76.123.456-7', 'Calle Comercial 123', 'contacto@minegocio.cl', '+56 9 1234 5678')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO sucursales (id, empresa_id, nombre, codigo, es_principal)
+VALUES ('b0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Local Principal', 'LOC-01', true)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO categorias (id, empresa_id, nombre, descripcion)
+VALUES 
+    ('c0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Bebidas y Líquidos', 'Aguas, jugos, bebidas, cervezas y licores'),
+    ('c0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'Abarrotes Generales', 'Arroz, harinas, aceites, azúcar, sal y granos'),
+    ('c0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'Lácteos y Quesos', 'Leches, quesos, mantequillas, cremas y yogures'),
+    ('c0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'Snacks y Dulces', 'Chocolates, galletas, papas fritas y confites'),
+    ('c0000000-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000001', 'Limpieza y Hogar', 'Detergentes, lavalozas, cloros, papeles y bolsas'),
+    ('c0000000-0000-0000-0000-000000000006', 'a0000000-0000-0000-0000-000000000001', 'Mascotas', 'Alimentos para perros, gatos y accesorios')
+ON CONFLICT (id) DO NOTHING;
+
 -- Habilitar Realtime para reflejo instantáneo en todos los dispositivos
 DO $$ BEGIN
     ALTER PUBLICATION supabase_realtime ADD TABLE productos, ventas, detalle_ventas, movimientos_inventario, categorias, clientes, proveedores, empresas, sucursales, stock_sucursal;

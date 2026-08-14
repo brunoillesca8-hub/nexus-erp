@@ -286,24 +286,34 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     setProductos(prev => [...nuevosProds, ...prev]);
 
     try {
+      const isUUID = (str?: string | null) => str && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+      const empresaIdValido = isUUID(empresa.id) ? empresa.id : 'a0000000-0000-0000-0000-000000000001';
+
       const formateadosSupabase = nuevosProds.map(p => ({
+        empresa_id: empresaIdValido,
         nombre: p.nombre,
-        sku: p.sku,
-        codigo_barras: p.codigo_barras,
-        categoria_id: p.categoria_id,
+        sku: p.sku ? p.sku.toString().replace(/\D/g, '') || p.sku.toString() : '1001',
+        codigo_barras: p.codigo_barras || null,
+        categoria_id: isUUID(p.categoria_id) ? p.categoria_id : null,
         precio_compra: p.precio_compra,
         precio_venta: p.precio_venta,
-        stock_minimo: p.stock_minimo,
-        unidad_medida: p.unidad_medida,
-        descripcion: p.descripcion,
+        stock_actual: p.stock_actual ?? 10,
+        stock_minimo: p.stock_minimo ?? 5,
+        unidad_medida: p.unidad_medida || 'u.',
+        descripcion: p.descripcion || null,
         activo: true,
       }));
 
-      // Insertar en lotes de 100 para alta velocidad y confiabilidad
+      // Insertar en lotes de 100 con upsert para no duplicar SKUs
       for (let i = 0; i < formateadosSupabase.length; i += 100) {
         const chunk = formateadosSupabase.slice(i, i + 100);
-        await supabase.from('productos').insert(chunk);
+        const { error } = await supabase.from('productos').upsert(chunk, { onConflict: 'empresa_id,sku' });
+        if (error) {
+          console.error('Error insertando lote Supabase:', error);
+        }
       }
+
+      await sincronizarConSupabase();
     } catch (e) {
       console.log('Error insertando en Supabase:', e);
     }

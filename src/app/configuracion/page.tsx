@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import { useERP } from '@/context/erp-context';
-import { Settings, Building2, Store, Upload, Check, AlertCircle, FileSpreadsheet, ShieldAlert } from 'lucide-react';
+import { Settings, Building2, Store, Upload, Check, AlertCircle, FileSpreadsheet, ShieldAlert, Trash2 } from 'lucide-react';
 import Papa from 'papaparse';
 
 export default function ConfiguracionPage() {
-  const { empresa, setEmpresa, sucursales, actualizarNombreSucursal, agregarProducto, agregarProductosLote, mostrarNotificacion } = useERP();
+  const { empresa, setEmpresa, sucursales, actualizarNombreSucursal, agregarProducto, agregarProductosLote, vaciarCatalogo, mostrarNotificacion } = useERP();
 
   // Estados de edición de empresa y local
   const [nombre, setNombre] = useState(empresa.nombre);
@@ -306,6 +306,31 @@ export default function ConfiguracionPage() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Zona de Mantenimiento de Catálogo */}
+      <div className="bg-white p-6 rounded-2xl border border-rose-200 shadow-xs space-y-3">
+        <div className="flex items-center gap-2 pb-2 border-b border-rose-100 text-rose-700">
+          <Trash2 className="w-5 h-5" />
+          <h3 className="font-bold text-sm">Zona de Mantenimiento: Vaciar Inventario</h3>
+        </div>
+        <p className="text-xs text-slate-600">
+          Esta acción borra todos los productos, registros de stock y movimientos de prueba para que puedas subir tu archivo CSV limpio desde cero.
+        </p>
+        <div className="pt-1">
+          <button
+            type="button"
+            onClick={() => {
+              if (window.confirm('¿Estás seguro de que deseas vaciar todos los productos del catálogo? Esta acción no se puede deshacer.')) {
+                vaciarCatalogo();
+              }
+            }}
+            className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-md shadow-rose-600/20 transition-all cursor-pointer flex items-center gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Vaciar Todos los Productos del Inventario</span>
+          </button>
+        </div>
       </div>
     </div>
   );

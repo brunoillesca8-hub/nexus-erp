@@ -48,6 +48,7 @@ interface ERPContextType {
   agregarProductosLote: (lista: Array<Omit<Producto, 'id' | 'created_at' | 'updated_at'>>) => Promise<void>;
   actualizarProducto: (id: string, producto: Partial<Producto>) => void;
   eliminarProducto: (id: string) => void;
+  vaciarCatalogo: () => void;
   agregarCliente: (cliente: Omit<Cliente, 'id' | 'created_at'>) => Promise<void>;
   actualizarCliente: (id: string, cliente: Partial<Cliente>) => void;
   agregarProveedor: (proveedor: Omit<Proveedor, 'id' | 'created_at'>) => Promise<void>;
@@ -295,6 +296,21 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     mostrarNotificacion('Producto desactivado del catálogo.', 'info');
   };
 
+  // Vaciar Catálogo Completo (Reset de Inventario)
+  const vaciarCatalogo = () => {
+    setProductos([]);
+    setMovimientos([]);
+    setVentas([]);
+    try {
+      localStorage.removeItem('erp_productos');
+      localStorage.removeItem('erp_movimientos');
+      localStorage.removeItem('erp_ventas');
+    } catch {
+      // Ignore
+    }
+    mostrarNotificacion('El catálogo de productos ha sido vaciado por completo.', 'info');
+  };
+
   // Agregar Cliente
   const agregarCliente = async (nuevo: Omit<Cliente, 'id' | 'created_at'>) => {
     const cliente: Cliente = {
@@ -487,6 +503,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
         agregarProductosLote,
         actualizarProducto,
         eliminarProducto,
+        vaciarCatalogo,
         agregarCliente,
         actualizarCliente,
         agregarProveedor,

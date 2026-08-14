@@ -26,7 +26,12 @@ import {
   Layers
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { BarcodeScannerModal } from '@/components/pos/BarcodeScannerModal';
+import dynamic from 'next/dynamic';
+
+const BarcodeScannerModal = dynamic(
+  () => import('@/components/pos/BarcodeScannerModal').then((mod) => mod.BarcodeScannerModal),
+  { ssr: false }
+);
 
 export default function NuevaVentaPage() {
   const { productos, clientes, categorias, procesarVenta, sucursalActiva, empresa, mostrarNotificacion } = useERP();

@@ -1,0 +1,501 @@
+SKU,Nombre,Codigo_Barras,Categoria,Precio_Compra,Precio_Venta,Stock,Stock_Minimo
+SKU-0001,Arroz Grano Largo (Clásico),780000000001,Abarrotes,950,1490,62,7
+SKU-0002,Aceite Vegetal 900ml (Selección),780000000002,Abarrotes,1470,2300,81,14
+SKU-0003,Fideos Spaghetti 400g (Especial),780000000003,Abarrotes,715,1199,45,7
+SKU-0004,Harina sin Polvos 1kg (Familiar),780000000004,Abarrotes,977,1598,22,9
+SKU-0005,Azúcar Blanca 1kg (Premium),780000000005,Abarrotes,1080,1740,31,12
+SKU-0006,Sal Fina de Mesa 1kg (Económico),780000000006,Abarrotes,563,988,22,9
+SKU-0007,Salsa de Tomate 200g (Natural),780000000007,Abarrotes,494,845,24,6
+SKU-0008,Atún en Lomitos al Agua 160g (Cremoso),780000000008,Abarrotes,1337,2147,49,10
+SKU-0009,Lentejas 4mm 1kg (Doble),780000000009,Abarrotes,2240,3486,44,14
+SKU-0010,Porotos Tórtola 1kg (Sur),780000000010,Abarrotes,2610,4046,94,12
+SKU-0011,Bebida Cola 1.5L (Clásico),780000000011,Bebidas y Jugos,1100,1790,26,9
+SKU-0012,Bebida Naranja 1.5L (Selección),780000000012,Bebidas y Jugos,1155,1880,71,9
+SKU-0013,Bebida Lima Limón 1.5L (Especial),780000000013,Bebidas y Jugos,1210,1969,23,10
+SKU-0014,Jugo Naranja 1L Caja (Familiar),780000000014,Bebidas y Jugos,1093,1713,94,9
+SKU-0015,Jugo Durazno 1L Caja (Premium),780000000015,Bebidas y Jugos,1140,1788,37,6
+SKU-0016,Agua Mineral sin Gas 1.5L (Económico),780000000016,Bebidas y Jugos,813,1363,80,12
+SKU-0017,Agua Mineral con Gas 1.5L (Natural),780000000017,Bebidas y Jugos,845,1417,51,6
+SKU-0018,Bebida Energética 250ml (Cremoso),780000000018,Bebidas y Jugos,1215,2147,84,13
+SKU-0019,Cerveza Lager 330cc Pack 6 (Doble),780000000019,Bebidas y Jugos,6300,9786,16,7
+SKU-0020,Cerveza Artesanal 330cc Pack 6 (Sur),780000000020,Bebidas y Jugos,8410,13036,73,8
+SKU-0021,Leche Entera 1L Tetra (Clásico),780000000021,Lácteos y Quesos,850,1290,93,14
+SKU-0022,Leche Descremada 1L (Selección),780000000022,Lácteos y Quesos,893,1355,74,8
+SKU-0023,Queso Gauda Laminado 500g (Especial),780000000023,Lácteos y Quesos,3520,5489,44,9
+SKU-0024,Queso Mantecoso Trozo 500g (Familiar),780000000024,Lácteos y Quesos,4140,6313,78,13
+SKU-0025,Mantequilla con Sal 250g (Premium),780000000025,Lácteos y Quesos,2100,3228,25,14
+SKU-0026,Yogurt Batido Vainilla 120g (Económico),780000000026,Lácteos y Quesos,350,563,71,5
+SKU-0027,Yogurt Frutilla 120g (Natural),780000000027,Lácteos y Quesos,364,585,61,9
+SKU-0028,Crema de Leche 200ml (Cremoso),780000000028,Lácteos y Quesos,1080,1742,19,7
+SKU-0029,Manjar Tradicional 400g (Doble),780000000029,Lácteos y Quesos,1820,2786,87,9
+SKU-0030,Quesillo Fresco 300g (Sur),780000000030,Lácteos y Quesos,2175,3321,31,12
+SKU-0031,Papas Fritas Lisas 200g (Clásico),780000000031,Snacks y Dulces,1200,1890,42,14
+SKU-0032,Galletas de Chocolate 130g (Selección),780000000032,Snacks y Dulces,683,1040,61,13
+SKU-0033,Galletas de Agua 180g (Especial),780000000033,Snacks y Dulces,660,979,76,6
+SKU-0034,Barra de Cereal Frutilla (Familiar),780000000034,Snacks y Dulces,345,575,42,7
+SKU-0035,Chocolate con Almendras 100g (Premium),780000000035,Snacks y Dulces,1320,2268,74,12
+SKU-0036,Maní Salado Tostado 150g (Económico),780000000036,Snacks y Dulces,875,1488,64,7
+SKU-0037,Gomitas Dulces 100g (Natural),780000000037,Snacks y Dulces,650,1105,75,11
+SKU-0038,Detergente Líquido 3L (Cremoso),780000000038,Limpieza y Hogar,6075,9437,17,12
+SKU-0039,Lavaloza Limón 750ml (Doble),780000000039,Limpieza y Hogar,1540,2506,54,7
+SKU-0040,Cloro Gel 900ml (Sur),780000000040,Limpieza y Hogar,1378,2161,73,14
+SKU-0041,Limpiador Multiuso Lavanda 900ml (Clásico),780000000041,Limpieza y Hogar,1150,1790,59,9
+SKU-0042,Papel Higiénico 4 Rollos Doble Hoja (Selección),780000000042,Limpieza y Hogar,1680,2615,81,11
+SKU-0043,Toalla de Papel 2 Rollos (Especial),780000000043,Limpieza y Hogar,1320,2079,40,13
+SKU-0044,Esponja de Cocina Pack 3 (Familiar),780000000044,Limpieza y Hogar,747,1254,58,10
+SKU-0045,Bolsas de Basura 50x70 10un (Premium),780000000045,Limpieza y Hogar,840,1428,53,5
+SKU-0046,Jamón de Pierna 250g Laminado (Económico),780000000046,Fiambrería y Cecinas,2250,3488,25,8
+SKU-0047,Salchichas Tradicionales 500g (Natural),780000000047,Fiambrería y Cecinas,1820,2847,84,7
+SKU-0048,Salame Ahumado Laminado 100g (Cremoso),780000000048,Fiambrería y Cecinas,1485,2363,84,13
+SKU-0049,Chorizo Parrillero Pack 4 (Doble),780000000049,Fiambrería y Cecinas,3080,4886,38,12
+SKU-0050,Alimento Perro Adulto Carne 3kg (Sur),780000000050,Mascotas,7105,10861,65,11
+SKU-0051,Alimento Gato Pescado 1.5kg (Clásico),780000000051,Mascotas,3800,5990,49,10
+SKU-0052,Arroz Grano Largo (Selección),780000000052,Abarrotes,998,1565,38,13
+SKU-0053,Aceite Vegetal 900ml (Especial),780000000053,Abarrotes,1540,2409,25,12
+SKU-0054,Fideos Spaghetti 400g (Familiar),780000000054,Abarrotes,747,1254,86,10
+SKU-0055,Harina sin Polvos 1kg (Premium),780000000055,Abarrotes,1020,1668,34,11
+SKU-0056,Azúcar Blanca 1kg (Económico),780000000056,Abarrotes,1125,1813,47,13
+SKU-0057,Sal Fina de Mesa 1kg (Natural),780000000057,Abarrotes,585,1027,71,6
+SKU-0058,Salsa de Tomate 200g (Cremoso),780000000058,Abarrotes,513,878,44,5
+SKU-0059,Atún en Lomitos al Agua 160g (Doble),780000000059,Abarrotes,1386,2226,17,9
+SKU-0060,Lentejas 4mm 1kg (Sur),780000000060,Abarrotes,2320,3611,24,12
+SKU-0061,Porotos Tórtola 1kg (Clásico),780000000061,Abarrotes,1800,2790,34,9
+SKU-0062,Bebida Cola 1.5L (Selección),780000000062,Bebidas y Jugos,1155,1880,23,11
+SKU-0063,Bebida Naranja 1.5L (Especial),780000000063,Bebidas y Jugos,1210,1969,49,7
+SKU-0064,Bebida Lima Limón 1.5L (Familiar),780000000064,Bebidas y Jugos,1265,2059,81,7
+SKU-0065,Jugo Naranja 1L Caja (Premium),780000000065,Bebidas y Jugos,1140,1788,83,8
+SKU-0066,Jugo Durazno 1L Caja (Económico),780000000066,Bebidas y Jugos,1188,1863,42,11
+SKU-0067,Agua Mineral sin Gas 1.5L (Natural),780000000067,Bebidas y Jugos,845,1417,29,5
+SKU-0068,Agua Mineral con Gas 1.5L (Cremoso),780000000068,Bebidas y Jugos,878,1472,51,13
+SKU-0069,Bebida Energética 250ml (Doble),780000000069,Bebidas y Jugos,1260,2226,90,12
+SKU-0070,Cerveza Lager 330cc Pack 6 (Sur),780000000070,Bebidas y Jugos,6525,10136,54,7
+SKU-0071,Cerveza Artesanal 330cc Pack 6 (Clásico),780000000071,Bebidas y Jugos,5800,8990,57,9
+SKU-0072,Leche Entera 1L Tetra (Selección),780000000072,Lácteos y Quesos,893,1355,77,14
+SKU-0073,Leche Descremada 1L (Especial),780000000073,Lácteos y Quesos,935,1419,62,10
+SKU-0074,Queso Gauda Laminado 500g (Familiar),780000000074,Lácteos y Quesos,3680,5739,39,12
+SKU-0075,Queso Mantecoso Trozo 500g (Premium),780000000075,Lácteos y Quesos,4320,6588,77,12
+SKU-0076,Mantequilla con Sal 250g (Económico),780000000076,Lácteos y Quesos,2188,3363,80,11
+SKU-0077,Yogurt Batido Vainilla 120g (Natural),780000000077,Lácteos y Quesos,364,585,33,10
+SKU-0078,Yogurt Frutilla 120g (Cremoso),780000000078,Lácteos y Quesos,378,608,23,12
+SKU-0079,Crema de Leche 200ml (Doble),780000000079,Lácteos y Quesos,1120,1806,51,13
+SKU-0080,Manjar Tradicional 400g (Sur),780000000080,Lácteos y Quesos,1885,2886,40,6
+SKU-0081,Quesillo Fresco 300g (Clásico),780000000081,Lácteos y Quesos,1500,2290,29,9
+SKU-0082,Papas Fritas Lisas 200g (Selección),780000000082,Snacks y Dulces,1260,1985,26,5
+SKU-0083,Galletas de Chocolate 130g (Especial),780000000083,Snacks y Dulces,715,1089,36,13
+SKU-0084,Galletas de Agua 180g (Familiar),780000000084,Snacks y Dulces,690,1023,88,6
+SKU-0085,Barra de Cereal Frutilla (Premium),780000000085,Snacks y Dulces,360,600,58,9
+SKU-0086,Chocolate con Almendras 100g (Económico),780000000086,Snacks y Dulces,1375,2363,60,14
+SKU-0087,Maní Salado Tostado 150g (Natural),780000000087,Snacks y Dulces,910,1547,83,9
+SKU-0088,Gomitas Dulces 100g (Cremoso),780000000088,Snacks y Dulces,675,1148,17,8
+SKU-0089,Detergente Líquido 3L (Doble),780000000089,Limpieza y Hogar,6300,9786,80,5
+SKU-0090,Lavaloza Limón 750ml (Sur),780000000090,Limpieza y Hogar,1595,2596,40,9
+SKU-0091,Cloro Gel 900ml (Clásico),780000000091,Limpieza y Hogar,950,1490,84,12
+SKU-0092,Limpiador Multiuso Lavanda 900ml (Selección),780000000092,Limpieza y Hogar,1208,1880,49,5
+SKU-0093,Papel Higiénico 4 Rollos Doble Hoja (Especial),780000000093,Limpieza y Hogar,1760,2739,31,14
+SKU-0094,Toalla de Papel 2 Rollos (Familiar),780000000094,Limpieza y Hogar,1380,2174,21,7
+SKU-0095,Esponja de Cocina Pack 3 (Premium),780000000095,Limpieza y Hogar,780,1308,82,14
+SKU-0096,Bolsas de Basura 50x70 10un (Económico),780000000096,Limpieza y Hogar,875,1488,84,6
+SKU-0097,Jamón de Pierna 250g Laminado (Natural),780000000097,Fiambrería y Cecinas,2340,3627,51,12
+SKU-0098,Salchichas Tradicionales 500g (Cremoso),780000000098,Fiambrería y Cecinas,1890,2957,66,5
+SKU-0099,Salame Ahumado Laminado 100g (Doble),780000000099,Fiambrería y Cecinas,1540,2450,64,12
+SKU-0100,Chorizo Parrillero Pack 4 (Sur),780000000100,Fiambrería y Cecinas,3190,5061,83,6
+SKU-0101,Alimento Perro Adulto Carne 3kg (Clásico),780000000101,Mascotas,4900,7490,32,8
+SKU-0102,Alimento Gato Pescado 1.5kg (Selección),780000000102,Mascotas,3990,6290,63,9
+SKU-0103,Arroz Grano Largo (Especial),780000000103,Abarrotes,1045,1639,83,8
+SKU-0104,Aceite Vegetal 900ml (Familiar),780000000104,Abarrotes,1610,2519,21,11
+SKU-0105,Fideos Spaghetti 400g (Premium),780000000105,Abarrotes,780,1308,47,11
+SKU-0106,Harina sin Polvos 1kg (Económico),780000000106,Abarrotes,1063,1738,63,10
+SKU-0107,Azúcar Blanca 1kg (Natural),780000000107,Abarrotes,1170,1885,72,5
+SKU-0108,Sal Fina de Mesa 1kg (Cremoso),780000000108,Abarrotes,608,1067,16,7
+SKU-0109,Salsa de Tomate 200g (Doble),780000000109,Abarrotes,532,910,85,8
+SKU-0110,Atún en Lomitos al Agua 160g (Sur),780000000110,Abarrotes,1436,2306,70,6
+SKU-0111,Lentejas 4mm 1kg (Clásico),780000000111,Abarrotes,1600,2490,90,5
+SKU-0112,Porotos Tórtola 1kg (Selección),780000000112,Abarrotes,1890,2930,79,12
+SKU-0113,Bebida Cola 1.5L (Especial),780000000113,Bebidas y Jugos,1210,1969,17,9
+SKU-0114,Bebida Naranja 1.5L (Familiar),780000000114,Bebidas y Jugos,1265,2059,69,10
+SKU-0115,Bebida Lima Limón 1.5L (Premium),780000000115,Bebidas y Jugos,1320,2148,78,6
+SKU-0116,Jugo Naranja 1L Caja (Económico),780000000116,Bebidas y Jugos,1188,1863,28,6
+SKU-0117,Jugo Durazno 1L Caja (Natural),780000000117,Bebidas y Jugos,1235,1937,73,5
+SKU-0118,Agua Mineral sin Gas 1.5L (Cremoso),780000000118,Bebidas y Jugos,878,1472,45,14
+SKU-0119,Agua Mineral con Gas 1.5L (Doble),780000000119,Bebidas y Jugos,910,1526,94,10
+SKU-0120,Bebida Energética 250ml (Sur),780000000120,Bebidas y Jugos,1305,2306,65,10
+SKU-0121,Cerveza Lager 330cc Pack 6 (Clásico),780000000121,Bebidas y Jugos,4500,6990,47,12
+SKU-0122,Cerveza Artesanal 330cc Pack 6 (Selección),780000000122,Bebidas y Jugos,6090,9440,50,11
+SKU-0123,Leche Entera 1L Tetra (Especial),780000000123,Lácteos y Quesos,935,1419,50,11
+SKU-0124,Leche Descremada 1L (Familiar),780000000124,Lácteos y Quesos,977,1483,62,7
+SKU-0125,Queso Gauda Laminado 500g (Premium),780000000125,Lácteos y Quesos,3840,5988,45,10
+SKU-0126,Queso Mantecoso Trozo 500g (Económico),780000000126,Lácteos y Quesos,4500,6863,80,6
+SKU-0127,Mantequilla con Sal 250g (Natural),780000000127,Lácteos y Quesos,2275,3497,83,10
+SKU-0128,Yogurt Batido Vainilla 120g (Cremoso),780000000128,Lácteos y Quesos,378,608,85,5
+SKU-0129,Yogurt Frutilla 120g (Doble),780000000129,Lácteos y Quesos,392,630,42,11
+SKU-0130,Crema de Leche 200ml (Sur),780000000130,Lácteos y Quesos,1160,1871,57,12
+SKU-0131,Manjar Tradicional 400g (Clásico),780000000131,Lácteos y Quesos,1300,1990,62,5
+SKU-0132,Quesillo Fresco 300g (Selección),780000000132,Lácteos y Quesos,1575,2405,90,12
+SKU-0133,Papas Fritas Lisas 200g (Especial),780000000133,Snacks y Dulces,1320,2079,82,10
+SKU-0134,Galletas de Chocolate 130g (Familiar),780000000134,Snacks y Dulces,747,1139,18,6
+SKU-0135,Galletas de Agua 180g (Premium),780000000135,Snacks y Dulces,720,1068,26,13
+SKU-0136,Barra de Cereal Frutilla (Económico),780000000136,Snacks y Dulces,375,625,43,11
+SKU-0137,Chocolate con Almendras 100g (Natural),780000000137,Snacks y Dulces,1430,2457,37,13
+SKU-0138,Maní Salado Tostado 150g (Cremoso),780000000138,Snacks y Dulces,945,1607,44,9
+SKU-0139,Gomitas Dulces 100g (Doble),780000000139,Snacks y Dulces,700,1190,46,10
+SKU-0140,Detergente Líquido 3L (Sur),780000000140,Limpieza y Hogar,6525,10136,15,6
+SKU-0141,Lavaloza Limón 750ml (Clásico),780000000141,Limpieza y Hogar,1100,1790,16,14
+SKU-0142,Cloro Gel 900ml (Selección),780000000142,Limpieza y Hogar,998,1565,28,12
+SKU-0143,Limpiador Multiuso Lavanda 900ml (Especial),780000000143,Limpieza y Hogar,1265,1969,30,14
+SKU-0144,Papel Higiénico 4 Rollos Doble Hoja (Familiar),780000000144,Limpieza y Hogar,1840,2864,61,5
+SKU-0145,Toalla de Papel 2 Rollos (Premium),780000000145,Limpieza y Hogar,1440,2268,43,6
+SKU-0146,Esponja de Cocina Pack 3 (Económico),780000000146,Limpieza y Hogar,813,1363,77,5
+SKU-0147,Bolsas de Basura 50x70 10un (Natural),780000000147,Limpieza y Hogar,910,1547,74,5
+SKU-0148,Jamón de Pierna 250g Laminado (Cremoso),780000000148,Fiambrería y Cecinas,2430,3767,20,13
+SKU-0149,Salchichas Tradicionales 500g (Doble),780000000149,Fiambrería y Cecinas,1960,3066,89,6
+SKU-0150,Salame Ahumado Laminado 100g (Sur),780000000150,Fiambrería y Cecinas,1595,2538,76,11
+SKU-0151,Chorizo Parrillero Pack 4 (Clásico),780000000151,Fiambrería y Cecinas,2200,3490,53,8
+SKU-0152,Alimento Perro Adulto Carne 3kg (Selección),780000000152,Mascotas,5145,7865,55,8
+SKU-0153,Alimento Gato Pescado 1.5kg (Especial),780000000153,Mascotas,4180,6589,60,5
+SKU-0154,Arroz Grano Largo (Familiar),780000000154,Abarrotes,1093,1713,29,7
+SKU-0155,Aceite Vegetal 900ml (Premium),780000000155,Abarrotes,1680,2628,42,6
+SKU-0156,Fideos Spaghetti 400g (Económico),780000000156,Abarrotes,813,1363,84,13
+SKU-0157,Harina sin Polvos 1kg (Natural),780000000157,Abarrotes,1105,1807,79,6
+SKU-0158,Azúcar Blanca 1kg (Cremoso),780000000158,Abarrotes,1215,1958,50,6
+SKU-0159,Sal Fina de Mesa 1kg (Doble),780000000159,Abarrotes,630,1106,53,9
+SKU-0160,Salsa de Tomate 200g (Sur),780000000160,Abarrotes,551,943,71,11
+SKU-0161,Atún en Lomitos al Agua 160g (Clásico),780000000161,Abarrotes,990,1590,84,9
+SKU-0162,Lentejas 4mm 1kg (Selección),780000000162,Abarrotes,1680,2615,49,14
+SKU-0163,Porotos Tórtola 1kg (Especial),780000000163,Abarrotes,1980,3069,40,12
+SKU-0164,Bebida Cola 1.5L (Familiar),780000000164,Bebidas y Jugos,1265,2059,73,9
+SKU-0165,Bebida Naranja 1.5L (Premium),780000000165,Bebidas y Jugos,1320,2148,38,11
+SKU-0166,Bebida Lima Limón 1.5L (Económico),780000000166,Bebidas y Jugos,1375,2238,37,12
+SKU-0167,Jugo Naranja 1L Caja (Natural),780000000167,Bebidas y Jugos,1235,1937,78,5
+SKU-0168,Jugo Durazno 1L Caja (Cremoso),780000000168,Bebidas y Jugos,1283,2012,87,5
+SKU-0169,Agua Mineral sin Gas 1.5L (Doble),780000000169,Bebidas y Jugos,910,1526,48,13
+SKU-0170,Agua Mineral con Gas 1.5L (Sur),780000000170,Bebidas y Jugos,943,1581,69,10
+SKU-0171,Bebida Energética 250ml (Clásico),780000000171,Bebidas y Jugos,900,1590,36,13
+SKU-0172,Cerveza Lager 330cc Pack 6 (Selección),780000000172,Bebidas y Jugos,4725,7340,22,10
+SKU-0173,Cerveza Artesanal 330cc Pack 6 (Especial),780000000173,Bebidas y Jugos,6380,9889,50,14
+SKU-0174,Leche Entera 1L Tetra (Familiar),780000000174,Lácteos y Quesos,977,1483,61,6
+SKU-0175,Leche Descremada 1L (Premium),780000000175,Lácteos y Quesos,1020,1548,24,9
+SKU-0176,Queso Gauda Laminado 500g (Económico),780000000176,Lácteos y Quesos,4000,6238,48,9
+SKU-0177,Queso Mantecoso Trozo 500g (Natural),780000000177,Lácteos y Quesos,4680,7137,50,5
+SKU-0178,Mantequilla con Sal 250g (Cremoso),780000000178,Lácteos y Quesos,2363,3632,55,8
+SKU-0179,Yogurt Batido Vainilla 120g (Doble),780000000179,Lácteos y Quesos,392,630,83,5
+SKU-0180,Yogurt Frutilla 120g (Sur),780000000180,Lácteos y Quesos,406,653,46,7
+SKU-0181,Crema de Leche 200ml (Clásico),780000000181,Lácteos y Quesos,800,1290,26,12
+SKU-0182,Manjar Tradicional 400g (Selección),780000000182,Lácteos y Quesos,1365,2090,28,9
+SKU-0183,Quesillo Fresco 300g (Especial),780000000183,Lácteos y Quesos,1650,2519,74,14
+SKU-0184,Papas Fritas Lisas 200g (Familiar),780000000184,Snacks y Dulces,1380,2174,33,9
+SKU-0185,Galletas de Chocolate 130g (Premium),780000000185,Snacks y Dulces,780,1188,36,12
+SKU-0186,Galletas de Agua 180g (Económico),780000000186,Snacks y Dulces,750,1113,52,6
+SKU-0187,Barra de Cereal Frutilla (Natural),780000000187,Snacks y Dulces,390,650,32,8
+SKU-0188,Chocolate con Almendras 100g (Cremoso),780000000188,Snacks y Dulces,1485,2552,25,9
+SKU-0189,Maní Salado Tostado 150g (Doble),780000000189,Snacks y Dulces,980,1666,35,8
+SKU-0190,Gomitas Dulces 100g (Sur),780000000190,Snacks y Dulces,725,1233,70,10
+SKU-0191,Detergente Líquido 3L (Clásico),780000000191,Limpieza y Hogar,4500,6990,25,11
+SKU-0192,Lavaloza Limón 750ml (Selección),780000000192,Limpieza y Hogar,1155,1880,34,6
+SKU-0193,Cloro Gel 900ml (Especial),780000000193,Limpieza y Hogar,1045,1639,75,11
+SKU-0194,Limpiador Multiuso Lavanda 900ml (Familiar),780000000194,Limpieza y Hogar,1323,2059,33,5
+SKU-0195,Papel Higiénico 4 Rollos Doble Hoja (Premium),780000000195,Limpieza y Hogar,1920,2988,22,9
+SKU-0196,Toalla de Papel 2 Rollos (Económico),780000000196,Limpieza y Hogar,1500,2363,19,5
+SKU-0197,Esponja de Cocina Pack 3 (Natural),780000000197,Limpieza y Hogar,845,1417,88,7
+SKU-0198,Bolsas de Basura 50x70 10un (Cremoso),780000000198,Limpieza y Hogar,945,1607,81,14
+SKU-0199,Jamón de Pierna 250g Laminado (Doble),780000000199,Fiambrería y Cecinas,2520,3906,29,6
+SKU-0200,Salchichas Tradicionales 500g (Sur),780000000200,Fiambrería y Cecinas,2030,3176,45,8
+SKU-0201,Salame Ahumado Laminado 100g (Clásico),780000000201,Fiambrería y Cecinas,1100,1750,87,7
+SKU-0202,Chorizo Parrillero Pack 4 (Selección),780000000202,Fiambrería y Cecinas,2310,3665,87,12
+SKU-0203,Alimento Perro Adulto Carne 3kg (Especial),780000000203,Mascotas,5390,8239,89,14
+SKU-0204,Alimento Gato Pescado 1.5kg (Familiar),780000000204,Mascotas,4370,6888,68,10
+SKU-0205,Arroz Grano Largo (Premium),780000000205,Abarrotes,1140,1788,32,8
+SKU-0206,Aceite Vegetal 900ml (Económico),780000000206,Abarrotes,1750,2738,36,12
+SKU-0207,Fideos Spaghetti 400g (Natural),780000000207,Abarrotes,845,1417,74,8
+SKU-0208,Harina sin Polvos 1kg (Cremoso),780000000208,Abarrotes,1148,1877,74,14
+SKU-0209,Azúcar Blanca 1kg (Doble),780000000209,Abarrotes,1260,2030,23,5
+SKU-0210,Sal Fina de Mesa 1kg (Sur),780000000210,Abarrotes,653,1146,67,14
+SKU-0211,Salsa de Tomate 200g (Clásico),780000000211,Abarrotes,380,650,69,11
+SKU-0212,Atún en Lomitos al Agua 160g (Selección),780000000212,Abarrotes,1040,1670,73,12
+SKU-0213,Lentejas 4mm 1kg (Especial),780000000213,Abarrotes,1760,2739,27,10
+SKU-0214,Porotos Tórtola 1kg (Familiar),780000000214,Abarrotes,2070,3208,21,14
+SKU-0215,Bebida Cola 1.5L (Premium),780000000215,Bebidas y Jugos,1320,2148,37,8
+SKU-0216,Bebida Naranja 1.5L (Económico),780000000216,Bebidas y Jugos,1375,2238,40,8
+SKU-0217,Bebida Lima Limón 1.5L (Natural),780000000217,Bebidas y Jugos,1430,2327,37,9
+SKU-0218,Jugo Naranja 1L Caja (Cremoso),780000000218,Bebidas y Jugos,1283,2012,90,12
+SKU-0219,Jugo Durazno 1L Caja (Doble),780000000219,Bebidas y Jugos,1330,2086,50,12
+SKU-0220,Agua Mineral sin Gas 1.5L (Sur),780000000220,Bebidas y Jugos,943,1581,33,12
+SKU-0221,Agua Mineral con Gas 1.5L (Clásico),780000000221,Bebidas y Jugos,650,1090,53,7
+SKU-0222,Bebida Energética 250ml (Selección),780000000222,Bebidas y Jugos,945,1670,45,10
+SKU-0223,Cerveza Lager 330cc Pack 6 (Especial),780000000223,Bebidas y Jugos,4950,7689,80,14
+SKU-0224,Cerveza Artesanal 330cc Pack 6 (Familiar),780000000224,Bebidas y Jugos,6670,10339,57,5
+SKU-0225,Leche Entera 1L Tetra (Premium),780000000225,Lácteos y Quesos,1020,1548,85,5
+SKU-0226,Leche Descremada 1L (Económico),780000000226,Lácteos y Quesos,1063,1613,61,14
+SKU-0227,Queso Gauda Laminado 500g (Natural),780000000227,Lácteos y Quesos,4160,6487,49,10
+SKU-0228,Queso Mantecoso Trozo 500g (Cremoso),780000000228,Lácteos y Quesos,4860,7412,19,6
+SKU-0229,Mantequilla con Sal 250g (Doble),780000000229,Lácteos y Quesos,2450,3766,16,8
+SKU-0230,Yogurt Batido Vainilla 120g (Sur),780000000230,Lácteos y Quesos,406,653,28,11
+SKU-0231,Yogurt Frutilla 120g (Clásico),780000000231,Lácteos y Quesos,280,450,26,12
+SKU-0232,Crema de Leche 200ml (Selección),780000000232,Lácteos y Quesos,840,1355,75,12
+SKU-0233,Manjar Tradicional 400g (Especial),780000000233,Lácteos y Quesos,1430,2189,27,11
+SKU-0234,Quesillo Fresco 300g (Familiar),780000000234,Lácteos y Quesos,1725,2634,35,6
+SKU-0235,Papas Fritas Lisas 200g (Premium),780000000235,Snacks y Dulces,1440,2268,53,7
+SKU-0236,Galletas de Chocolate 130g (Económico),780000000236,Snacks y Dulces,813,1238,82,9
+SKU-0237,Galletas de Agua 180g (Natural),780000000237,Snacks y Dulces,780,1157,92,13
+SKU-0238,Barra de Cereal Frutilla (Cremoso),780000000238,Snacks y Dulces,405,675,20,9
+SKU-0239,Chocolate con Almendras 100g (Doble),780000000239,Snacks y Dulces,1540,2646,36,11
+SKU-0240,Maní Salado Tostado 150g (Sur),780000000240,Snacks y Dulces,1015,1726,63,10
+SKU-0241,Gomitas Dulces 100g (Clásico),780000000241,Snacks y Dulces,500,850,42,11
+SKU-0242,Detergente Líquido 3L (Selección),780000000242,Limpieza y Hogar,4725,7340,74,11
+SKU-0243,Lavaloza Limón 750ml (Especial),780000000243,Limpieza y Hogar,1210,1969,18,5
+SKU-0244,Cloro Gel 900ml (Familiar),780000000244,Limpieza y Hogar,1093,1713,56,11
+SKU-0245,Limpiador Multiuso Lavanda 900ml (Premium),780000000245,Limpieza y Hogar,1380,2148,32,10
+SKU-0246,Papel Higiénico 4 Rollos Doble Hoja (Económico),780000000246,Limpieza y Hogar,2000,3113,55,7
+SKU-0247,Toalla de Papel 2 Rollos (Natural),780000000247,Limpieza y Hogar,1560,2457,37,14
+SKU-0248,Esponja de Cocina Pack 3 (Cremoso),780000000248,Limpieza y Hogar,878,1472,59,13
+SKU-0249,Bolsas de Basura 50x70 10un (Doble),780000000249,Limpieza y Hogar,980,1666,54,12
+SKU-0250,Jamón de Pierna 250g Laminado (Sur),780000000250,Fiambrería y Cecinas,2610,4046,85,5
+SKU-0251,Salchichas Tradicionales 500g (Clásico),780000000251,Fiambrería y Cecinas,1400,2190,34,13
+SKU-0252,Salame Ahumado Laminado 100g (Selección),780000000252,Fiambrería y Cecinas,1155,1838,18,5
+SKU-0253,Chorizo Parrillero Pack 4 (Especial),780000000253,Fiambrería y Cecinas,2420,3839,49,13
+SKU-0254,Alimento Perro Adulto Carne 3kg (Familiar),780000000254,Mascotas,5635,8614,81,7
+SKU-0255,Alimento Gato Pescado 1.5kg (Premium),780000000255,Mascotas,4560,7188,38,6
+SKU-0256,Arroz Grano Largo (Económico),780000000256,Abarrotes,1188,1863,46,7
+SKU-0257,Aceite Vegetal 900ml (Natural),780000000257,Abarrotes,1820,2847,83,9
+SKU-0258,Fideos Spaghetti 400g (Cremoso),780000000258,Abarrotes,878,1472,85,5
+SKU-0259,Harina sin Polvos 1kg (Doble),780000000259,Abarrotes,1190,1946,70,5
+SKU-0260,Azúcar Blanca 1kg (Sur),780000000260,Abarrotes,1305,2103,26,6
+SKU-0261,Sal Fina de Mesa 1kg (Clásico),780000000261,Abarrotes,450,790,37,7
+SKU-0262,Salsa de Tomate 200g (Selección),780000000262,Abarrotes,399,683,25,10
+SKU-0263,Atún en Lomitos al Agua 160g (Especial),780000000263,Abarrotes,1089,1749,87,9
+SKU-0264,Lentejas 4mm 1kg (Familiar),780000000264,Abarrotes,1840,2864,41,9
+SKU-0265,Porotos Tórtola 1kg (Premium),780000000265,Abarrotes,2160,3348,92,8
+SKU-0266,Bebida Cola 1.5L (Económico),780000000266,Bebidas y Jugos,1375,2238,44,10
+SKU-0267,Bebida Naranja 1.5L (Natural),780000000267,Bebidas y Jugos,1430,2327,49,13
+SKU-0268,Bebida Lima Limón 1.5L (Cremoso),780000000268,Bebidas y Jugos,1485,2417,27,13
+SKU-0269,Jugo Naranja 1L Caja (Doble),780000000269,Bebidas y Jugos,1330,2086,83,7
+SKU-0270,Jugo Durazno 1L Caja (Sur),780000000270,Bebidas y Jugos,1378,2161,63,5
+SKU-0271,Agua Mineral sin Gas 1.5L (Clásico),780000000271,Bebidas y Jugos,650,1090,34,10
+SKU-0272,Agua Mineral con Gas 1.5L (Selección),780000000272,Bebidas y Jugos,683,1145,79,12
+SKU-0273,Bebida Energética 250ml (Especial),780000000273,Bebidas y Jugos,990,1749,41,8
+SKU-0274,Cerveza Lager 330cc Pack 6 (Familiar),780000000274,Bebidas y Jugos,5175,8038,19,7
+SKU-0275,Cerveza Artesanal 330cc Pack 6 (Premium),780000000275,Bebidas y Jugos,6960,10788,35,6
+SKU-0276,Leche Entera 1L Tetra (Económico),780000000276,Lácteos y Quesos,1063,1613,41,9
+SKU-0277,Leche Descremada 1L (Natural),780000000277,Lácteos y Quesos,1105,1677,77,7
+SKU-0278,Queso Gauda Laminado 500g (Cremoso),780000000278,Lácteos y Quesos,4320,6737,41,5
+SKU-0279,Queso Mantecoso Trozo 500g (Doble),780000000279,Lácteos y Quesos,5040,7686,80,12
+SKU-0280,Mantequilla con Sal 250g (Sur),780000000280,Lácteos y Quesos,2538,3901,55,6
+SKU-0281,Yogurt Batido Vainilla 120g (Clásico),780000000281,Lácteos y Quesos,280,450,24,6
+SKU-0282,Yogurt Frutilla 120g (Selección),780000000282,Lácteos y Quesos,294,473,68,6
+SKU-0283,Crema de Leche 200ml (Especial),780000000283,Lácteos y Quesos,880,1419,36,10
+SKU-0284,Manjar Tradicional 400g (Familiar),780000000284,Lácteos y Quesos,1495,2289,55,11
+SKU-0285,Quesillo Fresco 300g (Premium),780000000285,Lácteos y Quesos,1800,2748,62,7
+SKU-0286,Papas Fritas Lisas 200g (Económico),780000000286,Snacks y Dulces,1500,2363,16,7
+SKU-0287,Galletas de Chocolate 130g (Natural),780000000287,Snacks y Dulces,845,1287,94,7
+SKU-0288,Galletas de Agua 180g (Cremoso),780000000288,Snacks y Dulces,810,1202,39,8
+SKU-0289,Barra de Cereal Frutilla (Doble),780000000289,Snacks y Dulces,420,700,25,9
+SKU-0290,Chocolate con Almendras 100g (Sur),780000000290,Snacks y Dulces,1595,2741,33,14
+SKU-0291,Maní Salado Tostado 150g (Clásico),780000000291,Snacks y Dulces,700,1190,50,8
+SKU-0292,Gomitas Dulces 100g (Selección),780000000292,Snacks y Dulces,525,893,79,5
+SKU-0293,Detergente Líquido 3L (Especial),780000000293,Limpieza y Hogar,4950,7689,29,10
+SKU-0294,Lavaloza Limón 750ml (Familiar),780000000294,Limpieza y Hogar,1265,2059,77,5
+SKU-0295,Cloro Gel 900ml (Premium),780000000295,Limpieza y Hogar,1140,1788,57,11
+SKU-0296,Limpiador Multiuso Lavanda 900ml (Económico),780000000296,Limpieza y Hogar,1438,2238,37,8
+SKU-0297,Papel Higiénico 4 Rollos Doble Hoja (Natural),780000000297,Limpieza y Hogar,2080,3237,34,11
+SKU-0298,Toalla de Papel 2 Rollos (Cremoso),780000000298,Limpieza y Hogar,1620,2552,82,6
+SKU-0299,Esponja de Cocina Pack 3 (Doble),780000000299,Limpieza y Hogar,910,1526,65,11
+SKU-0300,Bolsas de Basura 50x70 10un (Sur),780000000300,Limpieza y Hogar,1015,1726,45,12
+SKU-0301,Jamón de Pierna 250g Laminado (Clásico),780000000301,Fiambrería y Cecinas,1800,2790,35,8
+SKU-0302,Salchichas Tradicionales 500g (Selección),780000000302,Fiambrería y Cecinas,1470,2300,61,8
+SKU-0303,Salame Ahumado Laminado 100g (Especial),780000000303,Fiambrería y Cecinas,1210,1925,88,8
+SKU-0304,Chorizo Parrillero Pack 4 (Familiar),780000000304,Fiambrería y Cecinas,2530,4013,88,6
+SKU-0305,Alimento Perro Adulto Carne 3kg (Premium),780000000305,Mascotas,5880,8988,83,13
+SKU-0306,Alimento Gato Pescado 1.5kg (Económico),780000000306,Mascotas,4750,7488,88,14
+SKU-0307,Arroz Grano Largo (Natural),780000000307,Abarrotes,1235,1937,88,10
+SKU-0308,Aceite Vegetal 900ml (Cremoso),780000000308,Abarrotes,1890,2957,48,10
+SKU-0309,Fideos Spaghetti 400g (Doble),780000000309,Abarrotes,910,1526,46,12
+SKU-0310,Harina sin Polvos 1kg (Sur),780000000310,Abarrotes,1233,2016,43,5
+SKU-0311,Azúcar Blanca 1kg (Clásico),780000000311,Abarrotes,900,1450,15,9
+SKU-0312,Sal Fina de Mesa 1kg (Selección),780000000312,Abarrotes,473,830,23,11
+SKU-0313,Salsa de Tomate 200g (Especial),780000000313,Abarrotes,418,715,23,14
+SKU-0314,Atún en Lomitos al Agua 160g (Familiar),780000000314,Abarrotes,1139,1828,45,7
+SKU-0315,Lentejas 4mm 1kg (Premium),780000000315,Abarrotes,1920,2988,18,10
+SKU-0316,Porotos Tórtola 1kg (Económico),780000000316,Abarrotes,2250,3488,70,5
+SKU-0317,Bebida Cola 1.5L (Natural),780000000317,Bebidas y Jugos,1430,2327,36,10
+SKU-0318,Bebida Naranja 1.5L (Cremoso),780000000318,Bebidas y Jugos,1485,2417,84,10
+SKU-0319,Bebida Lima Limón 1.5L (Doble),780000000319,Bebidas y Jugos,1540,2506,21,10
+SKU-0320,Jugo Naranja 1L Caja (Sur),780000000320,Bebidas y Jugos,1378,2161,75,10
+SKU-0321,Jugo Durazno 1L Caja (Clásico),780000000321,Bebidas y Jugos,950,1490,71,14
+SKU-0322,Agua Mineral sin Gas 1.5L (Selección),780000000322,Bebidas y Jugos,683,1145,35,5
+SKU-0323,Agua Mineral con Gas 1.5L (Especial),780000000323,Bebidas y Jugos,715,1199,75,7
+SKU-0324,Bebida Energética 250ml (Familiar),780000000324,Bebidas y Jugos,1035,1828,88,10
+SKU-0325,Cerveza Lager 330cc Pack 6 (Premium),780000000325,Bebidas y Jugos,5400,8388,25,5
+SKU-0326,Cerveza Artesanal 330cc Pack 6 (Económico),780000000326,Bebidas y Jugos,7250,11238,50,12
+SKU-0327,Leche Entera 1L Tetra (Natural),780000000327,Lácteos y Quesos,1105,1677,56,8
+SKU-0328,Leche Descremada 1L (Cremoso),780000000328,Lácteos y Quesos,1148,1742,82,11
+SKU-0329,Queso Gauda Laminado 500g (Doble),780000000329,Lácteos y Quesos,4480,6986,51,8
+SKU-0330,Queso Mantecoso Trozo 500g (Sur),780000000330,Lácteos y Quesos,5220,7961,38,8
+SKU-0331,Mantequilla con Sal 250g (Clásico),780000000331,Lácteos y Quesos,1750,2690,62,8
+SKU-0332,Yogurt Batido Vainilla 120g (Selección),780000000332,Lácteos y Quesos,294,473,84,5
+SKU-0333,Yogurt Frutilla 120g (Especial),780000000333,Lácteos y Quesos,308,495,70,10
+SKU-0334,Crema de Leche 200ml (Familiar),780000000334,Lácteos y Quesos,920,1483,87,9
+SKU-0335,Manjar Tradicional 400g (Premium),780000000335,Lácteos y Quesos,1560,2388,66,7
+SKU-0336,Quesillo Fresco 300g (Económico),780000000336,Lácteos y Quesos,1875,2863,62,10
+SKU-0337,Papas Fritas Lisas 200g (Natural),780000000337,Snacks y Dulces,1560,2457,84,8
+SKU-0338,Galletas de Chocolate 130g (Cremoso),780000000338,Snacks y Dulces,878,1337,50,6
+SKU-0339,Galletas de Agua 180g (Doble),780000000339,Snacks y Dulces,840,1246,22,13
+SKU-0340,Barra de Cereal Frutilla (Sur),780000000340,Snacks y Dulces,435,725,35,11
+SKU-0341,Chocolate con Almendras 100g (Clásico),780000000341,Snacks y Dulces,1100,1890,74,10
+SKU-0342,Maní Salado Tostado 150g (Selección),780000000342,Snacks y Dulces,735,1250,27,14
+SKU-0343,Gomitas Dulces 100g (Especial),780000000343,Snacks y Dulces,550,935,62,6
+SKU-0344,Detergente Líquido 3L (Familiar),780000000344,Limpieza y Hogar,5175,8038,91,14
+SKU-0345,Lavaloza Limón 750ml (Premium),780000000345,Limpieza y Hogar,1320,2148,43,6
+SKU-0346,Cloro Gel 900ml (Económico),780000000346,Limpieza y Hogar,1188,1863,43,14
+SKU-0347,Limpiador Multiuso Lavanda 900ml (Natural),780000000347,Limpieza y Hogar,1495,2327,92,6
+SKU-0348,Papel Higiénico 4 Rollos Doble Hoja (Cremoso),780000000348,Limpieza y Hogar,2160,3362,55,10
+SKU-0349,Toalla de Papel 2 Rollos (Doble),780000000349,Limpieza y Hogar,1680,2646,74,8
+SKU-0350,Esponja de Cocina Pack 3 (Sur),780000000350,Limpieza y Hogar,943,1581,83,11
+SKU-0351,Bolsas de Basura 50x70 10un (Clásico),780000000351,Limpieza y Hogar,700,1190,19,13
+SKU-0352,Jamón de Pierna 250g Laminado (Selección),780000000352,Fiambrería y Cecinas,1890,2930,50,5
+SKU-0353,Salchichas Tradicionales 500g (Especial),780000000353,Fiambrería y Cecinas,1540,2409,92,9
+SKU-0354,Salame Ahumado Laminado 100g (Familiar),780000000354,Fiambrería y Cecinas,1265,2012,22,6
+SKU-0355,Chorizo Parrillero Pack 4 (Premium),780000000355,Fiambrería y Cecinas,2640,4188,62,5
+SKU-0356,Alimento Perro Adulto Carne 3kg (Económico),780000000356,Mascotas,6125,9363,60,5
+SKU-0357,Alimento Gato Pescado 1.5kg (Natural),780000000357,Mascotas,4940,7787,38,14
+SKU-0358,Arroz Grano Largo (Cremoso),780000000358,Abarrotes,1283,2012,85,13
+SKU-0359,Aceite Vegetal 900ml (Doble),780000000359,Abarrotes,1960,3066,40,12
+SKU-0360,Fideos Spaghetti 400g (Sur),780000000360,Abarrotes,943,1581,51,10
+SKU-0361,Harina sin Polvos 1kg (Clásico),780000000361,Abarrotes,850,1390,56,8
+SKU-0362,Azúcar Blanca 1kg (Selección),780000000362,Abarrotes,945,1523,76,8
+SKU-0363,Sal Fina de Mesa 1kg (Especial),780000000363,Abarrotes,495,869,71,7
+SKU-0364,Salsa de Tomate 200g (Familiar),780000000364,Abarrotes,437,747,73,5
+SKU-0365,Atún en Lomitos al Agua 160g (Premium),780000000365,Abarrotes,1188,1908,26,6
+SKU-0366,Lentejas 4mm 1kg (Económico),780000000366,Abarrotes,2000,3113,17,11
+SKU-0367,Porotos Tórtola 1kg (Natural),780000000367,Abarrotes,2340,3627,60,10
+SKU-0368,Bebida Cola 1.5L (Cremoso),780000000368,Bebidas y Jugos,1485,2417,84,11
+SKU-0369,Bebida Naranja 1.5L (Doble),780000000369,Bebidas y Jugos,1540,2506,47,9
+SKU-0370,Bebida Lima Limón 1.5L (Sur),780000000370,Bebidas y Jugos,1595,2596,48,7
+SKU-0371,Jugo Naranja 1L Caja (Clásico),780000000371,Bebidas y Jugos,950,1490,32,11
+SKU-0372,Jugo Durazno 1L Caja (Selección),780000000372,Bebidas y Jugos,998,1565,40,10
+SKU-0373,Agua Mineral sin Gas 1.5L (Especial),780000000373,Bebidas y Jugos,715,1199,57,11
+SKU-0374,Agua Mineral con Gas 1.5L (Familiar),780000000374,Bebidas y Jugos,747,1254,62,5
+SKU-0375,Bebida Energética 250ml (Premium),780000000375,Bebidas y Jugos,1080,1908,47,6
+SKU-0376,Cerveza Lager 330cc Pack 6 (Económico),780000000376,Bebidas y Jugos,5625,8738,37,12
+SKU-0377,Cerveza Artesanal 330cc Pack 6 (Natural),780000000377,Bebidas y Jugos,7540,11687,29,8
+SKU-0378,Leche Entera 1L Tetra (Cremoso),780000000378,Lácteos y Quesos,1148,1742,37,10
+SKU-0379,Leche Descremada 1L (Doble),780000000379,Lácteos y Quesos,1190,1806,42,10
+SKU-0380,Queso Gauda Laminado 500g (Sur),780000000380,Lácteos y Quesos,4640,7236,31,10
+SKU-0381,Queso Mantecoso Trozo 500g (Clásico),780000000381,Lácteos y Quesos,3600,5490,44,13
+SKU-0382,Mantequilla con Sal 250g (Selección),780000000382,Lácteos y Quesos,1838,2825,22,8
+SKU-0383,Yogurt Batido Vainilla 120g (Especial),780000000383,Lácteos y Quesos,308,495,22,6
+SKU-0384,Yogurt Frutilla 120g (Familiar),780000000384,Lácteos y Quesos,322,518,75,14
+SKU-0385,Crema de Leche 200ml (Premium),780000000385,Lácteos y Quesos,960,1548,85,5
+SKU-0386,Manjar Tradicional 400g (Económico),780000000386,Lácteos y Quesos,1625,2488,55,5
+SKU-0387,Quesillo Fresco 300g (Natural),780000000387,Lácteos y Quesos,1950,2977,72,13
+SKU-0388,Papas Fritas Lisas 200g (Cremoso),780000000388,Snacks y Dulces,1620,2552,82,8
+SKU-0389,Galletas de Chocolate 130g (Doble),780000000389,Snacks y Dulces,910,1386,90,5
+SKU-0390,Galletas de Agua 180g (Sur),780000000390,Snacks y Dulces,870,1291,39,6
+SKU-0391,Barra de Cereal Frutilla (Clásico),780000000391,Snacks y Dulces,300,500,69,7
+SKU-0392,Chocolate con Almendras 100g (Selección),780000000392,Snacks y Dulces,1155,1985,41,9
+SKU-0393,Maní Salado Tostado 150g (Especial),780000000393,Snacks y Dulces,770,1309,55,14
+SKU-0394,Gomitas Dulces 100g (Familiar),780000000394,Snacks y Dulces,575,977,79,8
+SKU-0395,Detergente Líquido 3L (Premium),780000000395,Limpieza y Hogar,5400,8388,37,14
+SKU-0396,Lavaloza Limón 750ml (Económico),780000000396,Limpieza y Hogar,1375,2238,26,9
+SKU-0397,Cloro Gel 900ml (Natural),780000000397,Limpieza y Hogar,1235,1937,47,12
+SKU-0398,Limpiador Multiuso Lavanda 900ml (Cremoso),780000000398,Limpieza y Hogar,1553,2417,67,7
+SKU-0399,Papel Higiénico 4 Rollos Doble Hoja (Doble),780000000399,Limpieza y Hogar,2240,3486,24,13
+SKU-0400,Toalla de Papel 2 Rollos (Sur),780000000400,Limpieza y Hogar,1740,2741,37,5
+SKU-0401,Esponja de Cocina Pack 3 (Clásico),780000000401,Limpieza y Hogar,650,1090,76,5
+SKU-0402,Bolsas de Basura 50x70 10un (Selección),780000000402,Limpieza y Hogar,735,1250,75,6
+SKU-0403,Jamón de Pierna 250g Laminado (Especial),780000000403,Fiambrería y Cecinas,1980,3069,54,11
+SKU-0404,Salchichas Tradicionales 500g (Familiar),780000000404,Fiambrería y Cecinas,1610,2519,92,11
+SKU-0405,Salame Ahumado Laminado 100g (Premium),780000000405,Fiambrería y Cecinas,1320,2100,81,10
+SKU-0406,Chorizo Parrillero Pack 4 (Económico),780000000406,Fiambrería y Cecinas,2750,4363,24,11
+SKU-0407,Alimento Perro Adulto Carne 3kg (Natural),780000000407,Mascotas,6370,9737,86,11
+SKU-0408,Alimento Gato Pescado 1.5kg (Cremoso),780000000408,Mascotas,5130,8087,24,11
+SKU-0409,Arroz Grano Largo (Doble),780000000409,Abarrotes,1330,2086,76,11
+SKU-0410,Aceite Vegetal 900ml (Sur),780000000410,Abarrotes,2030,3176,82,14
+SKU-0411,Fideos Spaghetti 400g (Clásico),780000000411,Abarrotes,650,1090,93,7
+SKU-0412,Harina sin Polvos 1kg (Selección),780000000412,Abarrotes,893,1460,84,12
+SKU-0413,Azúcar Blanca 1kg (Especial),780000000413,Abarrotes,990,1595,17,12
+SKU-0414,Sal Fina de Mesa 1kg (Familiar),780000000414,Abarrotes,518,908,83,5
+SKU-0415,Salsa de Tomate 200g (Premium),780000000415,Abarrotes,456,780,75,12
+SKU-0416,Atún en Lomitos al Agua 160g (Económico),780000000416,Abarrotes,1238,1988,54,12
+SKU-0417,Lentejas 4mm 1kg (Natural),780000000417,Abarrotes,2080,3237,80,10
+SKU-0418,Porotos Tórtola 1kg (Cremoso),780000000418,Abarrotes,2430,3767,46,7
+SKU-0419,Bebida Cola 1.5L (Doble),780000000419,Bebidas y Jugos,1540,2506,39,8
+SKU-0420,Bebida Naranja 1.5L (Sur),780000000420,Bebidas y Jugos,1595,2596,89,7
+SKU-0421,Bebida Lima Limón 1.5L (Clásico),780000000421,Bebidas y Jugos,1100,1790,57,11
+SKU-0422,Jugo Naranja 1L Caja (Selección),780000000422,Bebidas y Jugos,998,1565,22,14
+SKU-0423,Jugo Durazno 1L Caja (Especial),780000000423,Bebidas y Jugos,1045,1639,20,7
+SKU-0424,Agua Mineral sin Gas 1.5L (Familiar),780000000424,Bebidas y Jugos,747,1254,20,9
+SKU-0425,Agua Mineral con Gas 1.5L (Premium),780000000425,Bebidas y Jugos,780,1308,77,6
+SKU-0426,Bebida Energética 250ml (Económico),780000000426,Bebidas y Jugos,1125,1988,90,8
+SKU-0427,Cerveza Lager 330cc Pack 6 (Natural),780000000427,Bebidas y Jugos,5850,9087,41,5
+SKU-0428,Cerveza Artesanal 330cc Pack 6 (Cremoso),780000000428,Bebidas y Jugos,7830,12137,37,10
+SKU-0429,Leche Entera 1L Tetra (Doble),780000000429,Lácteos y Quesos,1190,1806,90,6
+SKU-0430,Leche Descremada 1L (Sur),780000000430,Lácteos y Quesos,1233,1871,55,7
+SKU-0431,Queso Gauda Laminado 500g (Clásico),780000000431,Lácteos y Quesos,3200,4990,48,14
+SKU-0432,Queso Mantecoso Trozo 500g (Selección),780000000432,Lácteos y Quesos,3780,5765,35,10
+SKU-0433,Mantequilla con Sal 250g (Especial),780000000433,Lácteos y Quesos,1925,2959,73,6
+SKU-0434,Yogurt Batido Vainilla 120g (Familiar),780000000434,Lácteos y Quesos,322,518,19,7
+SKU-0435,Yogurt Frutilla 120g (Premium),780000000435,Lácteos y Quesos,336,540,56,9
+SKU-0436,Crema de Leche 200ml (Económico),780000000436,Lácteos y Quesos,1000,1613,79,5
+SKU-0437,Manjar Tradicional 400g (Natural),780000000437,Lácteos y Quesos,1690,2587,89,8
+SKU-0438,Quesillo Fresco 300g (Cremoso),780000000438,Lácteos y Quesos,2025,3092,47,8
+SKU-0439,Papas Fritas Lisas 200g (Doble),780000000439,Snacks y Dulces,1680,2646,35,9
+SKU-0440,Galletas de Chocolate 130g (Sur),780000000440,Snacks y Dulces,943,1436,83,5
+SKU-0441,Galletas de Agua 180g (Clásico),780000000441,Snacks y Dulces,600,890,47,7
+SKU-0442,Barra de Cereal Frutilla (Selección),780000000442,Snacks y Dulces,315,525,27,8
+SKU-0443,Chocolate con Almendras 100g (Especial),780000000443,Snacks y Dulces,1210,2079,66,7
+SKU-0444,Maní Salado Tostado 150g (Familiar),780000000444,Snacks y Dulces,805,1369,92,8
+SKU-0445,Gomitas Dulces 100g (Premium),780000000445,Snacks y Dulces,600,1020,62,13
+SKU-0446,Detergente Líquido 3L (Económico),780000000446,Limpieza y Hogar,5625,8738,44,10
+SKU-0447,Lavaloza Limón 750ml (Natural),780000000447,Limpieza y Hogar,1430,2327,84,14
+SKU-0448,Cloro Gel 900ml (Cremoso),780000000448,Limpieza y Hogar,1283,2012,55,13
+SKU-0449,Limpiador Multiuso Lavanda 900ml (Doble),780000000449,Limpieza y Hogar,1610,2506,63,5
+SKU-0450,Papel Higiénico 4 Rollos Doble Hoja (Sur),780000000450,Limpieza y Hogar,2320,3611,55,5
+SKU-0451,Toalla de Papel 2 Rollos (Clásico),780000000451,Limpieza y Hogar,1200,1890,43,14
+SKU-0452,Esponja de Cocina Pack 3 (Selección),780000000452,Limpieza y Hogar,683,1145,24,10
+SKU-0453,Bolsas de Basura 50x70 10un (Especial),780000000453,Limpieza y Hogar,770,1309,36,5
+SKU-0454,Jamón de Pierna 250g Laminado (Familiar),780000000454,Fiambrería y Cecinas,2070,3208,91,11
+SKU-0455,Salchichas Tradicionales 500g (Premium),780000000455,Fiambrería y Cecinas,1680,2628,56,8
+SKU-0456,Salame Ahumado Laminado 100g (Económico),780000000456,Fiambrería y Cecinas,1375,2188,17,14
+SKU-0457,Chorizo Parrillero Pack 4 (Natural),780000000457,Fiambrería y Cecinas,2860,4537,83,6
+SKU-0458,Alimento Perro Adulto Carne 3kg (Cremoso),780000000458,Mascotas,6615,10112,61,11
+SKU-0459,Alimento Gato Pescado 1.5kg (Doble),780000000459,Mascotas,5320,8386,21,7
+SKU-0460,Arroz Grano Largo (Sur),780000000460,Abarrotes,1378,2161,27,7
+SKU-0461,Aceite Vegetal 900ml (Clásico),780000000461,Abarrotes,1400,2190,66,10
+SKU-0462,Fideos Spaghetti 400g (Selección),780000000462,Abarrotes,683,1145,58,5
+SKU-0463,Harina sin Polvos 1kg (Especial),780000000463,Abarrotes,935,1529,37,13
+SKU-0464,Azúcar Blanca 1kg (Familiar),780000000464,Abarrotes,1035,1667,71,8
+SKU-0465,Sal Fina de Mesa 1kg (Premium),780000000465,Abarrotes,540,948,64,6
+SKU-0466,Salsa de Tomate 200g (Económico),780000000466,Abarrotes,475,813,31,5
+SKU-0467,Atún en Lomitos al Agua 160g (Natural),780000000467,Abarrotes,1287,2067,18,7
+SKU-0468,Lentejas 4mm 1kg (Cremoso),780000000468,Abarrotes,2160,3362,31,14
+SKU-0469,Porotos Tórtola 1kg (Doble),780000000469,Abarrotes,2520,3906,28,14
+SKU-0470,Bebida Cola 1.5L (Sur),780000000470,Bebidas y Jugos,1595,2596,39,9
+SKU-0471,Bebida Naranja 1.5L (Clásico),780000000471,Bebidas y Jugos,1100,1790,32,12
+SKU-0472,Bebida Lima Limón 1.5L (Selección),780000000472,Bebidas y Jugos,1155,1880,94,13
+SKU-0473,Jugo Naranja 1L Caja (Especial),780000000473,Bebidas y Jugos,1045,1639,53,8
+SKU-0474,Jugo Durazno 1L Caja (Familiar),780000000474,Bebidas y Jugos,1093,1713,31,10
+SKU-0475,Agua Mineral sin Gas 1.5L (Premium),780000000475,Bebidas y Jugos,780,1308,84,12
+SKU-0476,Agua Mineral con Gas 1.5L (Económico),780000000476,Bebidas y Jugos,813,1363,49,10
+SKU-0477,Bebida Energética 250ml (Natural),780000000477,Bebidas y Jugos,1170,2067,29,10
+SKU-0478,Cerveza Lager 330cc Pack 6 (Cremoso),780000000478,Bebidas y Jugos,6075,9437,20,9
+SKU-0479,Cerveza Artesanal 330cc Pack 6 (Doble),780000000479,Bebidas y Jugos,8120,12586,32,10
+SKU-0480,Leche Entera 1L Tetra (Sur),780000000480,Lácteos y Quesos,1233,1871,83,13
+SKU-0481,Leche Descremada 1L (Clásico),780000000481,Lácteos y Quesos,850,1290,59,6
+SKU-0482,Queso Gauda Laminado 500g (Selección),780000000482,Lácteos y Quesos,3360,5240,29,6
+SKU-0483,Queso Mantecoso Trozo 500g (Especial),780000000483,Lácteos y Quesos,3960,6039,84,12
+SKU-0484,Mantequilla con Sal 250g (Familiar),780000000484,Lácteos y Quesos,2012,3093,24,5
+SKU-0485,Yogurt Batido Vainilla 120g (Premium),780000000485,Lácteos y Quesos,336,540,53,12
+SKU-0486,Yogurt Frutilla 120g (Económico),780000000486,Lácteos y Quesos,350,563,70,11
+SKU-0487,Crema de Leche 200ml (Natural),780000000487,Lácteos y Quesos,1040,1677,87,7
+SKU-0488,Manjar Tradicional 400g (Cremoso),780000000488,Lácteos y Quesos,1755,2687,19,10
+SKU-0489,Quesillo Fresco 300g (Doble),780000000489,Lácteos y Quesos,2100,3206,56,13
+SKU-0490,Papas Fritas Lisas 200g (Sur),780000000490,Snacks y Dulces,1740,2741,89,5
+SKU-0491,Galletas de Chocolate 130g (Clásico),780000000491,Snacks y Dulces,650,990,84,11
+SKU-0492,Galletas de Agua 180g (Selección),780000000492,Snacks y Dulces,630,935,52,14
+SKU-0493,Barra de Cereal Frutilla (Especial),780000000493,Snacks y Dulces,330,550,37,6
+SKU-0494,Chocolate con Almendras 100g (Familiar),780000000494,Snacks y Dulces,1265,2174,48,14
+SKU-0495,Maní Salado Tostado 150g (Premium),780000000495,Snacks y Dulces,840,1428,30,6
+SKU-0496,Gomitas Dulces 100g (Económico),780000000496,Snacks y Dulces,625,1063,72,11
+SKU-0497,Detergente Líquido 3L (Natural),780000000497,Limpieza y Hogar,5850,9087,71,14
+SKU-0498,Lavaloza Limón 750ml (Cremoso),780000000498,Limpieza y Hogar,1485,2417,90,6
+SKU-0499,Cloro Gel 900ml (Doble),780000000499,Limpieza y Hogar,1330,2086,41,12
+SKU-0500,Limpiador Multiuso Lavanda 900ml (Sur),780000000500,Limpieza y Hogar,1668,2596,69,10

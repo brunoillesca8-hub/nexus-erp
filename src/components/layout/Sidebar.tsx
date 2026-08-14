@@ -18,7 +18,8 @@ import {
   TrendingUp, 
   X,
   PlusCircle,
-  FileText
+  FileText,
+  CreditCard
 } from 'lucide-react';
 import { useERP } from '@/context/erp-context';
 
@@ -67,6 +68,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     {
       group: 'Sistema',
       items: [
+        { name: 'Suscripción & Planes', href: '/suscripcion', icon: CreditCard, highlight: true, roles: ['ADMIN'] },
         { name: 'Configuración & Empresa', href: '/configuracion', icon: Settings, roles: ['ADMIN'] },
       ],
     },

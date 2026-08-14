@@ -180,36 +180,54 @@ export default function ProductosPage() {
     }
   };
 
-  // Listener global de pistola lectora / app móvil
+  // Listener global de pistola lectora / app móvil (Barcode to PC)
   useEffect(() => {
     let buffer = '';
     let lastKeyTime = Date.now();
 
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        const textoAProcesar = (isInput && (target as HTMLInputElement).value) 
+          ? (target as HTMLInputElement).value.trim() 
+          : buffer.trim();
+
+        if (textoAProcesar.length >= 2) {
+          procesarEscaneoMercaderia(textoAProcesar);
+          buffer = '';
+          if (isInput && target.id !== 'search-products-input') (target as HTMLInputElement).value = '';
+          e.preventDefault();
+        }
+        buffer = '';
         return;
       }
 
       const currentTime = Date.now();
-      if (currentTime - lastKeyTime > 100) {
+      if (currentTime - lastKeyTime > 500) {
         buffer = '';
       }
       lastKeyTime = currentTime;
 
-      if (e.key === 'Enter') {
-        if (buffer.length > 2) {
-          procesarEscaneoMercaderia(buffer.trim());
-          buffer = '';
-          e.preventDefault();
-        }
-      } else if (e.key.length === 1) {
+      if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
         buffer += e.key;
       }
     };
 
+    const handlePaste = (e: ClipboardEvent) => {
+      const pasted = e.clipboardData?.getData('text');
+      if (pasted && pasted.trim().length >= 2) {
+        procesarEscaneoMercaderia(pasted.trim());
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('paste', handlePaste);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('paste', handlePaste);
+    };
   }, [productos, categorias, generarSiguienteSKU]);
 
   const handleSubmitRecepcion = (e: React.FormEvent) => {

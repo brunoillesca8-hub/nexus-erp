@@ -51,36 +51,59 @@ export default function NuevaVentaPage() {
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Escáner de lector USB/Bluetooth (captura secuencias rápidas de teclado terminadas en Enter)
+  // Escáner de lector USB/Bluetooth y Apps de Celular WiFi (Barcode to PC)
   useEffect(() => {
     let buffer = '';
     let lastKeyTime = Date.now();
 
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
-        if (target.id !== 'barcode-fast-input') return;
+      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+
+      // Si presiona Enter en cualquier parte (incluso dentro de un input)
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        const textoAProcesar = (isInput && (target as HTMLInputElement).value) 
+          ? (target as HTMLInputElement).value.trim() 
+          : buffer.trim();
+
+        if (textoAProcesar.length >= 2) {
+          const encontrado = handleBarcodeScanned(textoAProcesar);
+          if (encontrado) {
+            buffer = '';
+            if (isInput) (target as HTMLInputElement).value = '';
+            e.preventDefault();
+            return;
+          }
+        }
+        buffer = '';
+        return;
       }
 
       const currentTime = Date.now();
-      if (currentTime - lastKeyTime > 100) {
+      // Tolerancia amplia de 500ms para latencia de red Wi-Fi de apps móviles
+      if (currentTime - lastKeyTime > 500) {
         buffer = '';
       }
       lastKeyTime = currentTime;
 
-      if (e.key === 'Enter') {
-        if (buffer.length > 2) {
-          handleBarcodeScanned(buffer.trim());
-          buffer = '';
-          e.preventDefault();
-        }
-      } else if (e.key.length === 1) {
+      if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
         buffer += e.key;
       }
     };
 
+    const handlePaste = (e: ClipboardEvent) => {
+      const pasted = e.clipboardData?.getData('text');
+      if (pasted && pasted.trim().length >= 2) {
+        handleBarcodeScanned(pasted.trim());
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('paste', handlePaste);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('paste', handlePaste);
+    };
   }, [productos, carrito]);
 
   // Manejar escaneo (desde USB o desde Cámara)
@@ -95,10 +118,11 @@ export default function NuevaVentaPage() {
 
     if (!prod) {
       mostrarNotificacion(`Código "${code}" no encontrado en el catálogo.`, 'error');
-      return;
+      return false;
     }
 
     agregarAlCarrito(prod.id);
+    return true;
   };
 
   // Agregar producto al carrito respetando la REGLA DE STOCK > 0

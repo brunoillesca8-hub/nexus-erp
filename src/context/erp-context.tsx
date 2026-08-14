@@ -296,19 +296,23 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     mostrarNotificacion('Producto desactivado del catálogo.', 'info');
   };
 
-  // Vaciar Catálogo Completo (Reset de Inventario)
+  // Vaciar Catálogo y Datos de Prueba (Reset Completo)
   const vaciarCatalogo = () => {
     setProductos([]);
     setMovimientos([]);
     setVentas([]);
+    setClientes([]);
+    setProveedores([]);
     try {
       localStorage.removeItem('erp_productos');
       localStorage.removeItem('erp_movimientos');
       localStorage.removeItem('erp_ventas');
+      localStorage.removeItem('erp_clientes');
+      localStorage.removeItem('erp_proveedores');
     } catch {
       // Ignore
     }
-    mostrarNotificacion('El catálogo de productos ha sido vaciado por completo.', 'info');
+    mostrarNotificacion('El catálogo, ventas, clientes y proveedores han sido limpiados por completo.', 'info');
   };
 
   // Agregar Cliente

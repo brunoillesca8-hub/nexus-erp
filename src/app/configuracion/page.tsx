@@ -6,7 +6,7 @@ import { Settings, Building2, Store, Upload, Check, AlertCircle, FileSpreadsheet
 import Papa from 'papaparse';
 
 export default function ConfiguracionPage() {
-  const { empresa, setEmpresa, sucursales, actualizarNombreSucursal, agregarProducto, mostrarNotificacion } = useERP();
+  const { empresa, setEmpresa, sucursales, actualizarNombreSucursal, agregarProducto, agregarProductosLote, mostrarNotificacion } = useERP();
 
   // Estados de edición de empresa y local
   const [nombre, setNombre] = useState(empresa.nombre);
@@ -67,28 +67,26 @@ export default function ConfiguracionPage() {
   const confirmarImportacion = () => {
     if (previewDatos.length === 0) return;
 
-    previewDatos.forEach(item => {
-      agregarProducto({
-        empresa_id: empresa.id,
-        categoria_id: null,
-        proveedor_id: null,
-        nombre: item.nombre,
-        sku: item.sku,
-        codigo_barras: item.codigo_barras,
-        precio_compra: item.precio_compra,
-        precio_venta: item.precio_venta,
-        stock_actual: item.stock_actual,
-        stock_minimo: item.stock_minimo,
-        unidad_medida: item.unidad_medida,
-        descripcion: 'Importado vía CSV',
-        imagen_url: null,
-        activo: true,
-      });
-    });
+    const listaFormateada = previewDatos.map(item => ({
+      empresa_id: empresa.id,
+      categoria_id: null,
+      proveedor_id: null,
+      nombre: item.nombre,
+      sku: item.sku ? item.sku.toString().replace(/\D/g, '') || item.sku.toString() : '1001',
+      codigo_barras: item.codigo_barras || null,
+      precio_compra: item.precio_compra,
+      precio_venta: item.precio_venta,
+      stock_actual: item.stock_actual,
+      stock_minimo: item.stock_minimo,
+      unidad_medida: 'u.',
+      descripcion: 'Importado vía CSV / Excel',
+      imagen_url: null,
+      activo: true,
+    }));
 
+    agregarProductosLote(listaFormateada);
     setPreviewDatos([]);
     setArchivoNombre(null);
-    mostrarNotificacion('¡Catálogo importado exitosamente!', 'success');
   };
 
   return (

@@ -45,6 +45,7 @@ interface ERPContextType {
   
   // Operaciones Catálogo
   agregarProducto: (producto: Omit<Producto, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  agregarProductosLote: (lista: Array<Omit<Producto, 'id' | 'created_at' | 'updated_at'>>) => Promise<void>;
   actualizarProducto: (id: string, producto: Partial<Producto>) => void;
   eliminarProducto: (id: string) => void;
   agregarCliente: (cliente: Omit<Cliente, 'id' | 'created_at'>) => Promise<void>;
@@ -193,9 +194,9 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     }
   }, [productos, ventas, clientes, movimientos, empresa, categorias]);
 
-  // Agregar Producto
+  // Agregar Producto Individual
   const agregarProducto = async (nuevoProd: Omit<Producto, 'id' | 'created_at' | 'updated_at'>) => {
-    const id = `p-${Date.now()}`;
+    const id = `p-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     const prod: Producto = {
       ...nuevoProd,
       id,
@@ -207,7 +208,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     // Registrar movimiento de Kardex si trae stock inicial
     if (prod.stock_actual && prod.stock_actual > 0) {
       const mov: MovimientoInventario = {
-        id: `m-${Date.now()}`,
+        id: `m-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
         empresa_id: empresa.id,
         sucursal_id: sucursalActiva.id,
         producto_id: id,
@@ -234,10 +235,52 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
         unidad_medida: prod.unidad_medida,
       }]);
     } catch {
-      // Silencioso si no hay tabla aún
+      // Silencioso si no hay conexión
     }
 
-    mostrarNotificacion(`Producto "${prod.nombre}" registrado con éxito con SKU: ${prod.sku}.`, 'success');
+    mostrarNotificacion(`Producto "${prod.nombre}" registrado con éxito (SKU: ${prod.sku}).`, 'success');
+  };
+
+  // Agregar Lote Masivo de Productos (100% IDs Únicos Garantizados)
+  const agregarProductosLote = async (lista: Array<Omit<Producto, 'id' | 'created_at' | 'updated_at'>>) => {
+    const ahora = new Date().toISOString();
+    const nuevosProds: Producto[] = [];
+    const nuevosMovs: MovimientoInventario[] = [];
+
+    lista.forEach((item, idx) => {
+      const id = `p-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 9)}`;
+      const prod: Producto = {
+        ...item,
+        id,
+        created_at: ahora,
+        updated_at: ahora,
+      };
+      nuevosProds.push(prod);
+
+      if (prod.stock_actual && prod.stock_actual > 0) {
+        nuevosMovs.push({
+          id: `m-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 7)}`,
+          empresa_id: empresa.id,
+          sucursal_id: sucursalActiva.id,
+          producto_id: id,
+          usuario_id: null,
+          tipo: 'ENTRADA_COMPRA',
+          cantidad: prod.stock_actual,
+          stock_anterior: 0,
+          stock_posterior: prod.stock_actual,
+          motivo: 'Carga inicial masiva de inventario',
+          venta_id: null,
+          created_at: ahora,
+        });
+      }
+    });
+
+    setProductos(prev => [...nuevosProds, ...prev]);
+    if (nuevosMovs.length > 0) {
+      setMovimientos(prev => [...nuevosMovs, ...prev]);
+    }
+
+    mostrarNotificacion(`¡Se importaron ${nuevosProds.length} productos con éxito!`, 'success');
   };
 
   // Actualizar Producto
@@ -441,6 +484,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
         clientes,
         generarSiguienteSKU,
         agregarProducto,
+        agregarProductosLote,
         actualizarProducto,
         eliminarProducto,
         agregarCliente,

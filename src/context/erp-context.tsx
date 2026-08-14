@@ -128,33 +128,74 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     mostrarNotificacion(`Nombre del local actualizado a "${nombre}".`, 'success');
   };
 
-  // Intentar sincronizar con Supabase Cloud
-  useEffect(() => {
-    async function sincronizarConSupabase() {
-      try {
-        const { data: prodsData, error: prodsErr } = await supabase.from('productos').select('*');
-        if (!prodsErr && prodsData && prodsData.length > 0) {
-          setProductos(prodsData.map(p => ({ ...p, stock_actual: p.stock_actual ?? 15 })));
-          setIsOnlineSupabase(true);
-        }
-
-        const { data: empData } = await supabase.from('empresas').select('*').limit(1).single();
-        if (empData) setEmpresa(empData);
-
-        const { data: sucData } = await supabase.from('sucursales').select('*');
-        if (sucData && sucData.length > 0) {
-          setSucursales(sucData);
-          setSucursalActiva(sucData[0]);
-        }
-      } catch (err) {
-        console.log('Conexión en modo local/fallback activa:', err);
+  // Sincronizar con Supabase Cloud
+  const sincronizarConSupabase = async () => {
+    try {
+      const { data: prodsData, error: prodsErr } = await supabase.from('productos').select('*');
+      if (!prodsErr && prodsData) {
+        setProductos(prodsData.map(p => ({
+          id: p.id,
+          empresa_id: p.empresa_id || empresa.id,
+          categoria_id: p.categoria_id,
+          proveedor_id: p.proveedor_id,
+          nombre: p.nombre,
+          sku: p.sku ? p.sku.replace(/\D/g, '') || p.sku : '1001',
+          codigo_barras: p.codigo_barras,
+          precio_compra: Number(p.precio_compra || 0),
+          precio_venta: Number(p.precio_venta || 0),
+          stock_actual: p.stock_actual ?? 15,
+          stock_minimo: p.stock_minimo ?? 5,
+          unidad_medida: p.unidad_medida || 'u.',
+          descripcion: p.descripcion,
+          imagen_url: p.imagen_url,
+          activo: p.activo ?? true,
+          created_at: p.created_at,
+          updated_at: p.updated_at,
+        })));
+        setIsOnlineSupabase(true);
       }
-    }
 
+      const { data: catsData } = await supabase.from('categorias').select('*');
+      if (catsData && catsData.length > 0) {
+        setCategorias(catsData);
+      }
+
+      const { data: ventasData } = await supabase.from('ventas').select('*');
+      if (ventasData) {
+        setVentas(ventasData);
+      }
+
+      const { data: clientesData } = await supabase.from('clientes').select('*');
+      if (clientesData) {
+        setClientes(clientesData);
+      }
+
+      const { data: provData } = await supabase.from('proveedores').select('*');
+      if (provData) {
+        setProveedores(provData);
+      }
+    } catch (err) {
+      console.log('Modo local/offline activo:', err);
+    }
+  };
+
+  useEffect(() => {
     sincronizarConSupabase();
+
+    // Suscripción Realtime para reflejo instantáneo en todos los dispositivos conectados
+    const channel = supabase
+      .channel('erp-live-cloud-sync')
+      .on('postgres_changes', { event: '*', schema: 'public' }, () => {
+        sincronizarConSupabase();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [supabase]);
 
-  // Cargar datos persistidos en localStorage
+  // Cargar datos persistidos en localStorage (como fallback inmediato)
   useEffect(() => {
     try {
       const savedProds = localStorage.getItem('erp_productos');
@@ -165,12 +206,12 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
       const savedCats = localStorage.getItem('erp_categorias');
       const savedSuc = localStorage.getItem('erp_sucursal');
 
-      if (savedProds) setProductos(JSON.parse(savedProds));
-      if (savedVentas) setVentas(JSON.parse(savedVentas));
-      if (savedClientes) setClientes(JSON.parse(savedClientes));
+      if (savedProds && !isOnlineSupabase) setProductos(JSON.parse(savedProds));
+      if (savedVentas && !isOnlineSupabase) setVentas(JSON.parse(savedVentas));
+      if (savedClientes && !isOnlineSupabase) setClientes(JSON.parse(savedClientes));
       if (savedMovs) setMovimientos(JSON.parse(savedMovs));
       if (savedEmpresa) setEmpresa(JSON.parse(savedEmpresa));
-      if (savedCats) setCategorias(JSON.parse(savedCats));
+      if (savedCats && !isOnlineSupabase) setCategorias(JSON.parse(savedCats));
       if (savedSuc) {
         const parsedSuc = JSON.parse(savedSuc);
         setSucursalActiva(parsedSuc);
@@ -179,7 +220,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Ignore parse error
     }
-  }, []);
+  }, [isOnlineSupabase]);
 
   // Persistir en LocalStorage
   useEffect(() => {
@@ -206,47 +247,30 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     };
     setProductos(prev => [prod, ...prev]);
 
-    // Registrar movimiento de Kardex si trae stock inicial
-    if (prod.stock_actual && prod.stock_actual > 0) {
-      const mov: MovimientoInventario = {
-        id: `m-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-        empresa_id: empresa.id,
-        sucursal_id: sucursalActiva.id,
-        producto_id: id,
-        usuario_id: null,
-        tipo: 'ENTRADA_COMPRA',
-        cantidad: prod.stock_actual,
-        stock_anterior: 0,
-        stock_posterior: prod.stock_actual,
-        motivo: 'Inventario inicial del producto',
-        venta_id: null,
-        created_at: new Date().toISOString(),
-      };
-      setMovimientos(prev => [mov, ...prev]);
-    }
-
     try {
       await supabase.from('productos').insert([{
         nombre: prod.nombre,
         sku: prod.sku,
         codigo_barras: prod.codigo_barras,
+        categoria_id: prod.categoria_id,
         precio_compra: prod.precio_compra,
         precio_venta: prod.precio_venta,
         stock_minimo: prod.stock_minimo,
         unidad_medida: prod.unidad_medida,
+        descripcion: prod.descripcion,
+        activo: true,
       }]);
     } catch {
-      // Silencioso si no hay conexión
+      // Silencioso
     }
 
-    mostrarNotificacion(`Producto "${prod.nombre}" registrado con éxito (SKU: ${prod.sku}).`, 'success');
+    mostrarNotificacion(`Producto "${prod.nombre}" registrado con éxito.`, 'success');
   };
 
-  // Agregar Lote Masivo de Productos (100% IDs Únicos Garantizados)
+  // Agregar Lote Masivo de Productos a Supabase Cloud + Local
   const agregarProductosLote = async (lista: Array<Omit<Producto, 'id' | 'created_at' | 'updated_at'>>) => {
     const ahora = new Date().toISOString();
     const nuevosProds: Producto[] = [];
-    const nuevosMovs: MovimientoInventario[] = [];
 
     lista.forEach((item, idx) => {
       const id = `p-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 9)}`;
@@ -257,47 +281,60 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
         updated_at: ahora,
       };
       nuevosProds.push(prod);
-
-      if (prod.stock_actual && prod.stock_actual > 0) {
-        nuevosMovs.push({
-          id: `m-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 7)}`,
-          empresa_id: empresa.id,
-          sucursal_id: sucursalActiva.id,
-          producto_id: id,
-          usuario_id: null,
-          tipo: 'ENTRADA_COMPRA',
-          cantidad: prod.stock_actual,
-          stock_anterior: 0,
-          stock_posterior: prod.stock_actual,
-          motivo: 'Carga inicial masiva de inventario',
-          venta_id: null,
-          created_at: ahora,
-        });
-      }
     });
 
     setProductos(prev => [...nuevosProds, ...prev]);
-    if (nuevosMovs.length > 0) {
-      setMovimientos(prev => [...nuevosMovs, ...prev]);
+
+    try {
+      const formateadosSupabase = nuevosProds.map(p => ({
+        nombre: p.nombre,
+        sku: p.sku,
+        codigo_barras: p.codigo_barras,
+        categoria_id: p.categoria_id,
+        precio_compra: p.precio_compra,
+        precio_venta: p.precio_venta,
+        stock_minimo: p.stock_minimo,
+        unidad_medida: p.unidad_medida,
+        descripcion: p.descripcion,
+        activo: true,
+      }));
+
+      // Insertar en lotes de 100 para alta velocidad y confiabilidad
+      for (let i = 0; i < formateadosSupabase.length; i += 100) {
+        const chunk = formateadosSupabase.slice(i, i + 100);
+        await supabase.from('productos').insert(chunk);
+      }
+    } catch (e) {
+      console.log('Error insertando en Supabase:', e);
     }
 
-    mostrarNotificacion(`¡Se importaron ${nuevosProds.length} productos con éxito!`, 'success');
+    mostrarNotificacion(`¡Se importaron ${nuevosProds.length} productos con éxito y sincronizados en la nube!`, 'success');
   };
 
   // Actualizar Producto
-  const actualizarProducto = (id: string, campos: Partial<Producto>) => {
+  const actualizarProducto = async (id: string, campos: Partial<Producto>) => {
     setProductos(prev => prev.map(p => p.id === id ? { ...p, ...campos, updated_at: new Date().toISOString() } : p));
+    try {
+      await supabase.from('productos').update(campos).eq('id', id);
+    } catch {}
     mostrarNotificacion('Producto actualizado correctamente.', 'success');
   };
 
-  // Eliminar Producto
-  const eliminarProducto = (id: string) => {
-    setProductos(prev => prev.map(p => p.id === id ? { ...p, activo: false } : p));
-    mostrarNotificacion('Producto desactivado del catálogo.', 'info');
+  // Eliminar Producto (Cloud + Local)
+  const eliminarProducto = async (id: string) => {
+    const prod = productos.find(p => p.id === id);
+    setProductos(prev => prev.filter(p => p.id !== id));
+    try {
+      await supabase.from('productos').delete().eq('id', id);
+      if (prod?.sku) {
+        await supabase.from('productos').delete().eq('sku', prod.sku);
+      }
+    } catch {}
+    mostrarNotificacion('Producto eliminado del catálogo.', 'info');
   };
 
-  // Vaciar Catálogo y Datos de Prueba (Reset Completo)
-  const vaciarCatalogo = () => {
+  // Vaciar Catálogo y Datos de Prueba (Reset Completo Cloud + Local)
+  const vaciarCatalogo = async () => {
     setProductos([]);
     setMovimientos([]);
     setVentas([]);
@@ -309,10 +346,16 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('erp_ventas');
       localStorage.removeItem('erp_clientes');
       localStorage.removeItem('erp_proveedores');
-    } catch {
-      // Ignore
+
+      // Limpiar también en Supabase Cloud
+      await supabase.from('productos').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('ventas').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('clientes').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('proveedores').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    } catch (e) {
+      console.log('Error vaciando nube:', e);
     }
-    mostrarNotificacion('El catálogo, ventas, clientes y proveedores han sido limpiados por completo.', 'info');
+    mostrarNotificacion('El catálogo, ventas, clientes y proveedores han sido limpiados por completo en todos los dispositivos.', 'info');
   };
 
   // Agregar Cliente

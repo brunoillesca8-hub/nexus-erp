@@ -461,3 +461,59 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- ==============================================================================
+-- 9. POLÍTICAS DE ACCESO PÚBLICO Y SINCRONIZACIÓN REALTIME (PC + CELULAR)
+-- ==============================================================================
+
+-- Habilitar RLS permisivo
+ALTER TABLE IF EXISTS empresas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS sucursales ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS categorias ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS proveedores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS productos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS ventas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS venta_detalles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS movimientos_inventario ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS clientes ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+    CREATE POLICY "Allow public all empresas" ON empresas FOR ALL USING (true) WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+    CREATE POLICY "Allow public all sucursales" ON sucursales FOR ALL USING (true) WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+    CREATE POLICY "Allow public all categorias" ON categorias FOR ALL USING (true) WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+    CREATE POLICY "Allow public all proveedores" ON proveedores FOR ALL USING (true) WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+    CREATE POLICY "Allow public all productos" ON productos FOR ALL USING (true) WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+    CREATE POLICY "Allow public all ventas" ON ventas FOR ALL USING (true) WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+    CREATE POLICY "Allow public all venta_detalles" ON venta_detalles FOR ALL USING (true) WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+    CREATE POLICY "Allow public all movimientos_inventario" ON movimientos_inventario FOR ALL USING (true) WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+    CREATE POLICY "Allow public all clientes" ON clientes FOR ALL USING (true) WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+-- Habilitar Realtime para reflejo instantáneo en todos los dispositivos
+DO $$ BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE productos, ventas, venta_detalles, movimientos_inventario, categorias, clientes, proveedores, empresas, sucursales;
+EXCEPTION WHEN duplicate_object OR others THEN null; END $$;

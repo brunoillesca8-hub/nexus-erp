@@ -46,6 +46,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       group: 'Inventario',
       items: [
         { name: 'Catálogo', href: '/productos', icon: Package, roles: ['SUPERADMIN', 'ADMIN', 'INVENTARIO', 'ANALISTA'] },
+        { name: 'Categorías', href: '/productos?tab=categorias', icon: FolderTree, roles: ['SUPERADMIN', 'ADMIN', 'INVENTARIO', 'ANALISTA'] },
         { name: 'Kardex', href: '/inventario', icon: Boxes, roles: ['SUPERADMIN', 'ADMIN', 'INVENTARIO'] },
         { name: 'Proveedores', href: '/proveedores', icon: Truck, roles: ['SUPERADMIN', 'ADMIN', 'INVENTARIO'] },
         { name: 'Clientes CRM', href: '/clientes', icon: Users, roles: ['SUPERADMIN', 'ADMIN', 'VENDEDOR'] },

@@ -6,7 +6,18 @@ import { Settings, Building2, Store, Upload, Check, AlertCircle, FileSpreadsheet
 import Papa from 'papaparse';
 
 export default function ConfiguracionPage() {
-  const { empresa, setEmpresa, sucursales, actualizarNombreSucursal, agregarProducto, agregarProductosLote, vaciarCatalogo, mostrarNotificacion } = useERP();
+  const { 
+    empresa, 
+    setEmpresa, 
+    sucursales, 
+    actualizarNombreSucursal, 
+    categorias,
+    agregarCategoria,
+    agregarProducto, 
+    agregarProductosLote, 
+    vaciarCatalogo, 
+    mostrarNotificacion 
+  } = useERP();
 
   // Estados de edición de empresa y local
   const [nombre, setNombre] = useState(empresa.nombre);
@@ -20,6 +31,18 @@ export default function ConfiguracionPage() {
   // Estados de importación CSV
   const [previewDatos, setPreviewDatos] = useState<any[]>([]);
   const [archivoNombre, setArchivoNombre] = useState<string | null>(null);
+
+  const sanitizarNombreCategoria = (catStr: string) => {
+    if (!catStr) return 'Abarrotes Generales';
+    const c = catStr.trim();
+    if (c.toLowerCase().includes('bebida') || c.toLowerCase().includes('quido')) return 'Bebidas y Líquidos';
+    if (c.toLowerCase().includes('abarrote')) return 'Abarrotes Generales';
+    if (c.toLowerCase().includes('cteo') || c.toLowerCase().includes('queso')) return 'Lácteos y Quesos';
+    if (c.toLowerCase().includes('snack') || c.toLowerCase().includes('dulce')) return 'Snacks y Dulces';
+    if (c.toLowerCase().includes('limpieza') || c.toLowerCase().includes('hogar')) return 'Limpieza y Hogar';
+    if (c.toLowerCase().includes('mascota')) return 'Mascotas';
+    return c;
+  };
 
   const handleGuardarEmpresa = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,42 +70,78 @@ export default function ConfiguracionPage() {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        const filasValidadas = results.data.map((row: any) => ({
-          nombre: row.Nombre || row.nombre || row.Producto || '',
-          sku: row.SKU || row.sku || `SKU-${Math.floor(Math.random() * 10000)}`,
-          codigo_barras: row.Codigo_Barras || row.codigo_barras || row.Codigo || null,
-          precio_compra: Number(row.Precio_Compra || row.precio_compra || row.Costo || 1000),
-          precio_venta: Number(row.Precio_Venta || row.precio_venta || row.Precio || 1500),
-          stock_actual: Number(row.Stock || row.stock || row.Stock_Actual || 10),
-          stock_minimo: Number(row.Stock_Minimo || row.stock_minimo || 5),
-          unidad_medida: 'unidad',
-        })).filter(r => r.nombre);
+        const filasValidadas = results.data.map((row: any) => {
+          const rawCat = row.Categoria || row.categoria || row.Categoría || row.category || 'Abarrotes Generales';
+          const catSanitizada = sanitizarNombreCategoria(rawCat);
+
+          return {
+            nombre: row.Nombre || row.nombre || row.Producto || '',
+            sku: row.SKU || row.sku || `SKU-${Math.floor(Math.random() * 10000)}`,
+            codigo_barras: row.Codigo_Barras || row.codigo_barras || row.Codigo || null,
+            categoria: catSanitizada,
+            precio_compra: Number(row.Precio_Compra || row.precio_compra || row.Costo || 1000),
+            precio_venta: Number(row.Precio_Venta || row.precio_venta || row.Precio || 1500),
+            stock_actual: Number(row.Stock || row.stock || row.Stock_Actual || 10),
+            stock_minimo: Number(row.Stock_Minimo || row.stock_minimo || 5),
+            unidad_medida: 'u.',
+          };
+        }).filter(r => r.nombre);
 
         setPreviewDatos(filasValidadas);
-        mostrarNotificacion(`Archivo cargado: ${filasValidadas.length} productos detectados para importación.`, 'info');
+        mostrarNotificacion(`Archivo cargado: ${filasValidadas.length} productos detectados con categorías asignadas.`, 'info');
       },
     });
   };
 
-  const confirmarImportacion = () => {
+  const confirmarImportacion = async () => {
     if (previewDatos.length === 0) return;
 
-    const listaFormateada = previewDatos.map(item => ({
-      empresa_id: empresa.id,
-      categoria_id: null,
-      proveedor_id: null,
-      nombre: item.nombre,
-      sku: item.sku ? item.sku.toString().replace(/\D/g, '') || item.sku.toString() : '1001',
-      codigo_barras: item.codigo_barras || null,
-      precio_compra: item.precio_compra,
-      precio_venta: item.precio_venta,
-      stock_actual: item.stock_actual,
-      stock_minimo: item.stock_minimo,
-      unidad_medida: 'u.',
-      descripcion: 'Importado vía CSV / Excel',
-      imagen_url: null,
-      activo: true,
-    }));
+    // 1. Identificar categorías únicas en el archivo
+    const mapaCategorias: Record<string, string> = {};
+    
+    // Registrar IDs de categorías existentes
+    categorias.forEach(c => {
+      mapaCategorias[c.nombre.toLowerCase().trim()] = c.id;
+    });
+
+    // Crear categorías faltantes si no existen
+    for (const item of previewDatos) {
+      const nombreCat = item.categoria || 'Abarrotes Generales';
+      const key = nombreCat.toLowerCase().trim();
+      if (!mapaCategorias[key]) {
+        const nuevaCatId = `cat-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+        await agregarCategoria({
+          empresa_id: empresa.id,
+          nombre: nombreCat,
+          descripcion: `Categoría ${nombreCat}`,
+          activo: true,
+        });
+        mapaCategorias[key] = nuevaCatId;
+      }
+    }
+
+    // 2. Mapear productos vinculando su categoria_id real
+    const listaFormateada = previewDatos.map(item => {
+      const catKey = (item.categoria || 'Abarrotes Generales').toLowerCase().trim();
+      const catId = mapaCategorias[catKey] || categorias.find(c => c.nombre.toLowerCase() === catKey)?.id || categorias[0]?.id || null;
+
+      return {
+        empresa_id: empresa.id,
+        categoria_id: catId,
+        proveedor_id: null,
+        nombre: item.nombre,
+        sku: item.sku ? item.sku.toString().replace(/\D/g, '') || item.sku.toString() : '1001',
+        codigo_barras: item.codigo_barras || null,
+        precio_compra: item.precio_compra,
+        precio_venta: item.precio_venta,
+        stock_actual: item.stock_actual,
+        stock_minimo: item.stock_minimo,
+        unidad_medida: 'u.',
+        descripcion: `Categoría: ${item.categoria}`,
+        imagen_url: null,
+        activo: true,
+      };
+    });
 
     agregarProductosLote(listaFormateada);
     setPreviewDatos([]);
@@ -284,6 +343,7 @@ export default function ConfiguracionPage() {
                   <tr>
                     <th className="p-2">SKU</th>
                     <th className="p-2">Nombre</th>
+                    <th className="p-2">Categoría</th>
                     <th className="p-2">C. Barras</th>
                     <th className="p-2">P. Compra</th>
                     <th className="p-2">P. Venta</th>
@@ -291,10 +351,15 @@ export default function ConfiguracionPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-[11px]">
-                  {previewDatos.slice(0, 5).map((row, i) => (
+                  {previewDatos.slice(0, 6).map((row, i) => (
                     <tr key={i} className="hover:bg-slate-50">
                       <td className="p-2 font-mono font-bold text-slate-800">{row.sku}</td>
-                      <td className="p-2">{row.nombre}</td>
+                      <td className="p-2 font-semibold text-slate-900">{row.nombre}</td>
+                      <td className="p-2">
+                        <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700">
+                          {row.categoria}
+                        </span>
+                      </td>
                       <td className="p-2 font-mono text-slate-500">{row.codigo_barras || '-'}</td>
                       <td className="p-2">${row.precio_compra}</td>
                       <td className="p-2 font-bold">${row.precio_venta}</td>

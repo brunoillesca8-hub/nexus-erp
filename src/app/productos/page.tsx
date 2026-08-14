@@ -28,7 +28,8 @@ import {
   TrendingUp,
   Percent,
   CheckSquare,
-  Square
+  Square,
+  FolderTree
 } from 'lucide-react';
 import { Producto } from '@/types/database.types';
 import Link from 'next/link';
@@ -69,6 +70,9 @@ export default function ProductosPage() {
   // Modal de Escáner Rápido por Código
   const [modalEscanearRapidoOpen, setModalEscanearRapidoOpen] = useState(false);
   const [codigoInputManual, setCodigoInputManual] = useState('');
+
+  // Pestaña activa (Productos o Categorías)
+  const [tabActiva, setTabActiva] = useState<'productos' | 'categorias'>('productos');
 
   // Filtros & Búsqueda predictiva
   const [busqueda, setBusqueda] = useState('');
@@ -878,91 +882,124 @@ export default function ProductosPage() {
         </div>
       )}
 
-      {/* Encabezado Principal estilo Screenshot */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-1">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Gestión Centralizada de Productos
-          </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Catálogo de productos único de la tienda.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {seleccionados.length > 0 && (
-            <button
-              onClick={() => setModalAjusteMasivoOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
-            >
-              <Percent className="w-3.5 h-3.5" />
-              <span>Ajustar {seleccionados.length} Precios</span>
-            </button>
-          )}
-          <button
-            onClick={() => setModalEscanearRapidoOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer"
-            title="Escanear o ingresar código de barras de mercadería entrante"
-          >
-            <Barcode className="w-4 h-4" />
-            <span>Recepción Mercadería</span>
-          </button>
-          <button
-            onClick={() => setModalNuevoOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#2d3748] hover:bg-[#1a202c] text-white font-bold text-xs rounded-xl shadow-sm transition-all active:scale-95 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Nuevo Producto</span>
-          </button>
-        </div>
+      {/* Pestañas Superiores de Catálogo vs Categorías */}
+      <div className="flex border-b border-slate-200 gap-6 text-sm font-semibold">
+        <button
+          onClick={() => setTabActiva('productos')}
+          className={`pb-3 border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
+            tabActiva === 'productos'
+              ? 'border-blue-600 text-blue-600 font-bold'
+              : 'border-transparent text-slate-400 hover:text-slate-700'
+          }`}
+        >
+          <Package className="w-4 h-4" />
+          <span>Catálogo de Productos ({productos.length})</span>
+        </button>
+        <button
+          onClick={() => setTabActiva('categorias')}
+          className={`pb-3 border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
+            tabActiva === 'categorias'
+              ? 'border-blue-600 text-blue-600 font-bold'
+              : 'border-transparent text-slate-400 hover:text-slate-700'
+          }`}
+        >
+          <FolderTree className="w-4 h-4 text-indigo-600" />
+          <span>Departamentos & Categorías ({categorias.length})</span>
+        </button>
       </div>
 
-      {/* Barra de Búsqueda y Filtro de Categoría estilo Screenshot */}
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-        <div className="sm:col-span-8 relative flex items-center">
-          <Search className="w-4 h-4 text-slate-400 ml-3.5 absolute pointer-events-none" />
-          <input
-            type="text"
-            placeholder="Buscar por SKU, Nombre o Código EAN-13"
-            value={busqueda}
-            onChange={e => {
-              setBusqueda(e.target.value);
-              setPaginaActual(1);
-            }}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-slate-400 shadow-2xs font-medium"
-          />
-        </div>
+      {tabActiva === 'productos' ? (
+        <>
+          {/* Encabezado Principal estilo Screenshot */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-1">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                Gestión Centralizada de Productos
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Catálogo de productos único de la tienda.
+              </p>
+            </div>
 
-        <div className="sm:col-span-4 flex gap-2">
-          <select
-            value={categoriaFiltro}
-            onChange={e => {
-              setCategoriaFiltro(e.target.value);
-              setPaginaActual(1);
-            }}
-            className="flex-1 px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:border-slate-400 shadow-2xs font-medium cursor-pointer"
-          >
-            <option value="">Filtrar categoría</option>
-            {categorias.map(c => (
-              <option key={c.id} value={c.id}>{c.nombre}</option>
-            ))}
-          </select>
+            <div className="flex items-center gap-2">
+              {seleccionados.length > 0 && (
+                <button
+                  onClick={() => setModalAjusteMasivoOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                >
+                  <Percent className="w-3.5 h-3.5" />
+                  <span>Ajustar {seleccionados.length} Precios</span>
+                </button>
+              )}
+              <button
+                onClick={() => setModalEscanearRapidoOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer"
+                title="Escanear o ingresar código de barras de mercadería entrante"
+              >
+                <Barcode className="w-4 h-4" />
+                <span>Recepción Mercadería</span>
+              </button>
+              <button
+                onClick={() => setModalNuevoOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-[#2d3748] hover:bg-[#1a202c] text-white font-bold text-xs rounded-xl shadow-sm transition-all active:scale-95 cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Nuevo Producto</span>
+              </button>
+            </div>
+          </div>
 
-          <select
-            value={estadoStockFiltro}
-            onChange={e => {
-              setEstadoStockFiltro(e.target.value as any);
-              setPaginaActual(1);
-            }}
-            className="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:border-slate-400 shadow-2xs font-medium cursor-pointer"
-          >
-            <option value="todos">Stock: Todos</option>
-            <option value="bajo">Stock Crítico</option>
-            <option value="agotado">Agotados (0)</option>
-            <option value="optimo">Óptimos</option>
-          </select>
-        </div>
-      </div>
+          {/* Barra de Búsqueda y Filtro de Categoría estilo Screenshot */}
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+            <div className="sm:col-span-8 relative flex items-center">
+              <Search className="w-4 h-4 text-slate-400 ml-3.5 absolute pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Buscar por SKU, Nombre o Código EAN-13"
+                value={busqueda}
+                onChange={e => {
+                  setBusqueda(e.target.value);
+                  setPaginaActual(1);
+                }}
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-slate-400 shadow-2xs font-medium"
+              />
+            </div>
+
+            <div className="sm:col-span-4 flex gap-2">
+              <select
+                value={categoriaFiltro}
+                onChange={e => {
+                  setCategoriaFiltro(e.target.value);
+                  setPaginaActual(1);
+                }}
+                className="flex-1 px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:border-slate-400 shadow-2xs font-medium cursor-pointer"
+              >
+                <option value="">Todas las Categorías ({productos.length})</option>
+                {categorias.map(c => {
+                  const cant = productos.filter(p => p.categoria_id === c.id).length;
+                  return (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre} ({cant} prods.)
+                    </option>
+                  );
+                })}
+              </select>
+
+              <select
+                value={estadoStockFiltro}
+                onChange={e => {
+                  setEstadoStockFiltro(e.target.value as any);
+                  setPaginaActual(1);
+                }}
+                className="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:border-slate-400 shadow-2xs font-medium cursor-pointer"
+              >
+                <option value="todos">Stock: Todos</option>
+                <option value="bajo">Stock Crítico</option>
+                <option value="agotado">Agotados (0)</option>
+                <option value="optimo">Óptimos</option>
+              </select>
+            </div>
+          </div>
 
       {/* Tabla de Productos Estilo Screenshot con Sorting Interactivo */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
@@ -1203,6 +1240,80 @@ export default function ProductosPage() {
           </div>
         </div>
       </div>
+    </>
+  ) : (
+    /* TAB 2: Gestión de Departamentos & Categorías */
+    <div className="space-y-4 pt-1">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            Departamentos & Categorías
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Organización y valorización del inventario por familias de productos.
+          </p>
+        </div>
+
+        <button
+          onClick={() => setModalNuevaCatOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-[#2d3748] hover:bg-[#1a202c] text-white font-bold text-xs rounded-xl shadow-sm transition-all active:scale-95 cursor-pointer"
+        >
+          <FolderPlus className="w-4 h-4" />
+          <span>Nueva Categoría</span>
+        </button>
+      </div>
+
+      {/* Grid de Tarjetas de Categorías */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {categorias.map(c => {
+          const prodsEnCat = productos.filter(p => p.categoria_id === c.id);
+          const totalStock = prodsEnCat.reduce((acc, p) => acc + (p.stock_actual ?? 0), 0);
+          const totalValuacion = prodsEnCat.reduce((acc, p) => acc + ((p.stock_actual ?? 0) * p.precio_compra), 0);
+          const totalVenta = prodsEnCat.reduce((acc, p) => acc + ((p.stock_actual ?? 0) * p.precio_venta), 0);
+
+          return (
+            <div 
+              key={c.id} 
+              className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3 hover:border-slate-300 transition-all flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-900 text-sm">{c.nombre}</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700">
+                    {prodsEnCat.length} SKUs
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">{c.descripcion || 'Sin descripción'}</p>
+              </div>
+
+              <div className="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Stock Total:</span>
+                  <strong className="text-slate-900 text-sm font-black">{totalStock} u.</strong>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Valorización:</span>
+                  <strong className="text-emerald-700 text-sm font-black">{formatCLP(totalValuacion)}</strong>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  setCategoriaFiltro(c.id);
+                  setTabActiva('productos');
+                  setPaginaActual(1);
+                }}
+                className="w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>Ver {prodsEnCat.length} Productos</span>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              </button>
+            </div>
+          );
+        })}
+      </div>
     </div>
-  );
+  )}
+</div>
+);
 }

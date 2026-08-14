@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS ventas (
     empresa_id UUID NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
     sucursal_id UUID NOT NULL REFERENCES sucursales(id),
     cliente_id UUID REFERENCES clientes(id) ON DELETE SET NULL,
-    usuario_id UUID NOT NULL REFERENCES usuarios_perfil(id),
+    usuario_id UUID REFERENCES usuarios_perfil(id),
     numero_folio BIGSERIAL,
     subtotal NUMERIC(14, 2) NOT NULL DEFAULT 0,
     descuento NUMERIC(14, 2) NOT NULL DEFAULT 0,
@@ -518,8 +518,9 @@ DO $$ BEGIN
     CREATE POLICY "Allow public all clientes" ON clientes FOR ALL USING (true) WITH CHECK (true);
 EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- Asegurar columna stock_actual en productos
+-- Asegurar columna stock_actual en productos y usuario_id opcional en ventas
 ALTER TABLE IF EXISTS productos ADD COLUMN IF NOT EXISTS stock_actual INT DEFAULT 0;
+ALTER TABLE IF EXISTS ventas ALTER COLUMN usuario_id DROP NOT NULL;
 
 -- 10. DATOS SEMILLA BASE (Para garantizar integridad referencial multi-dispositivo)
 INSERT INTO empresas (id, nombre, rut_identificador, direccion, email, telefono)

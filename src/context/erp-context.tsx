@@ -502,23 +502,71 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     setVentas(prev => [nuevaVenta, ...prev]);
     setMovimientos(prev => [...nuevosMovimientos, ...prev]);
 
+    // Guardar Venta y Descontar Stock en Supabase Cloud
+    (async () => {
+      try {
+        const isUUID = (str?: string | null) => str && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+        const empresaIdValido = isUUID(empresa.id) ? empresa.id : 'a0000000-0000-0000-0000-000000000001';
+        const sucursalIdValida = isUUID(sucursalActiva.id) ? sucursalActiva.id : 'b0000000-0000-0000-0000-000000000001';
+
+        const { data: vInserted, error: vErr } = await supabase.from('ventas').insert([{
+          empresa_id: empresaIdValido,
+          sucursal_id: sucursalIdValida,
+          cliente_id: isUUID(data.clienteId) ? data.clienteId : null,
+          numero_folio: nextFolio,
+          subtotal: data.subtotal,
+          descuento: data.descuento,
+          impuesto: data.impuesto,
+          total: data.total,
+          metodo_pago: data.metodoPago,
+          estado: 'COMPLETADA',
+          notas: data.notas || null,
+          fecha_venta: ahora,
+        }]).select('id').single();
+
+        if (vInserted) {
+          const detSupabase = data.items.map(item => ({
+            venta_id: vInserted.id,
+            producto_id: item.producto_id,
+            cantidad: item.cantidad,
+            precio_unitario: item.precio_unitario,
+            costo_unitario: item.costo_unitario,
+            descuento: item.descuento || 0,
+            subtotal: item.subtotal,
+          }));
+          await supabase.from('detalle_ventas').insert(detSupabase);
+        }
+
+        // Actualizar stock de los productos vendidos en Supabase
+        for (const item of data.items) {
+          const prod = prodsActualizados.find(p => p.id === item.producto_id);
+          if (prod) {
+            await supabase.from('productos').update({ stock_actual: prod.stock_actual }).eq('id', prod.id);
+            if (prod.sku) {
+              await supabase.from('productos').update({ stock_actual: prod.stock_actual }).eq('sku', prod.sku);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error sincronizando venta con Supabase:', err);
+      }
+    })();
+
     mostrarNotificacion(`¡Venta #${nextFolio} completada con éxito!`, 'success');
     return { success: true, ventaId, folio: nextFolio };
   };
 
   const ajustarStock = (
     productoId: string, 
-    cantidadAjuste: number, 
+    cantidad: number, 
     motivo: string, 
-    tipo: MovimientoInventario['tipo']
+    tipo: MovimientoInventario['tipo'] = 'AJUSTE_POSITIVO'
   ) => {
     const prod = productos.find(p => p.id === productoId);
     if (!prod) return;
 
     const stockAnt = prod.stock_actual ?? 0;
-    const stockPost = Math.max(0, stockAnt + cantidadAjuste);
-
-    setProductos(prev => prev.map(p => p.id === productoId ? { ...p, stock_actual: stockPost } : p));
+    const stockPost = Math.max(0, stockAnt + cantidad);
 
     const mov: MovimientoInventario = {
       id: `m-${Date.now()}`,
@@ -527,7 +575,7 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
       producto_id: productoId,
       usuario_id: null,
       tipo,
-      cantidad: cantidadAjuste,
+      cantidad,
       stock_anterior: stockAnt,
       stock_posterior: stockPost,
       motivo,
@@ -536,8 +584,20 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
       producto: prod,
     };
 
+    setProductos(prev => prev.map(p => p.id === productoId ? { ...p, stock_actual: stockPost } : p));
     setMovimientos(prev => [mov, ...prev]);
-    mostrarNotificacion(`Ajuste de stock aplicado a "${prod.nombre}".`, 'success');
+
+    // Actualizar en Supabase Cloud
+    (async () => {
+      try {
+        await supabase.from('productos').update({ stock_actual: stockPost }).eq('id', productoId);
+        if (prod.sku) {
+          await supabase.from('productos').update({ stock_actual: stockPost }).eq('sku', prod.sku);
+        }
+      } catch {}
+    })();
+
+    mostrarNotificacion(`Stock de "${prod.nombre}" actualizado a ${stockPost} unidades.`, 'success');
   };
 
   return (

@@ -47,6 +47,7 @@ export default function ProductosPage() {
     actualizarProducto, 
     eliminarProducto,
     agregarCategoria,
+    ajustarStock,
     mostrarNotificacion
   } = useERP();
 
@@ -58,6 +59,16 @@ export default function ProductosPage() {
   const [nuevaCatNombre, setNuevaCatNombre] = useState('');
   const [modalAjusteMasivoOpen, setModalAjusteMasivoOpen] = useState(false);
   const [porcentajeAjuste, setPorcentajeAjuste] = useState<number>(5);
+
+  // Modal de Recepción Rápida de Mercadería por Código de Barras
+  const [modalRecepcionOpen, setModalRecepcionOpen] = useState(false);
+  const [productoRecepcion, setProductoRecepcion] = useState<Producto | null>(null);
+  const [cantidadRecepcion, setCantidadRecepcion] = useState<number>(12);
+  const [motivoRecepcion, setMotivoRecepcion] = useState<string>('Recepción de Factura / Ingreso');
+
+  // Modal de Escáner Rápido por Código
+  const [modalEscanearRapidoOpen, setModalEscanearRapidoOpen] = useState(false);
+  const [codigoInputManual, setCodigoInputManual] = useState('');
 
   // Filtros & Búsqueda predictiva
   const [busqueda, setBusqueda] = useState('');
@@ -129,6 +140,86 @@ export default function ProductosPage() {
       descripcion: prod.descripcion || '',
     });
     setModalEditarOpen(true);
+  };
+
+  // Procesar escaneo de código de barras para Recepción o Registro
+  const procesarEscaneoMercaderia = (codigo: string) => {
+    const codeTrim = codigo.trim().toLowerCase();
+    const prodExistente = productos.find(p => {
+      const matchBarcode = p.codigo_barras && p.codigo_barras.toLowerCase() === codeTrim;
+      const matchSku = p.sku && p.sku.toLowerCase() === codeTrim;
+      const matchSkuNum = p.sku && p.sku.replace(/\D/g, '') === codeTrim;
+      return matchBarcode || matchSku || matchSkuNum;
+    });
+
+    if (prodExistente) {
+      // Caso A: El producto YA existe -> Abre modal para sumar unidades
+      setProductoRecepcion(prodExistente);
+      setCantidadRecepcion(12);
+      setMotivoRecepcion('Recepción de Factura / Ingreso de Mercadería');
+      setModalRecepcionOpen(true);
+      mostrarNotificacion(`Producto identificado: "${prodExistente.nombre}". Ingresa las unidades recibidas.`, 'info');
+    } else {
+      // Caso B: El producto es NUEVO -> Abre modal para crearlo con el código ya puesto
+      setForm({
+        nombre: '',
+        sku: generarSiguienteSKU(),
+        codigo_barras: codigo.trim(),
+        categoria_id: categorias[0]?.id || '',
+        proveedor_id: '',
+        precio_compra: 0,
+        precio_venta: 0,
+        stock_actual: 12,
+        stock_minimo: 5,
+        stock_maximo: 50,
+        unidad_medida: 'u.',
+        descripcion: 'Ingresado por escaneo de código',
+      });
+      setModalNuevoOpen(true);
+      mostrarNotificacion(`Código nuevo detectado (${codigo}). Completa los datos para registrarlo.`, 'info');
+    }
+  };
+
+  // Listener global de pistola lectora / app móvil
+  useEffect(() => {
+    let buffer = '';
+    let lastKeyTime = Date.now();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+        return;
+      }
+
+      const currentTime = Date.now();
+      if (currentTime - lastKeyTime > 100) {
+        buffer = '';
+      }
+      lastKeyTime = currentTime;
+
+      if (e.key === 'Enter') {
+        if (buffer.length > 2) {
+          procesarEscaneoMercaderia(buffer.trim());
+          buffer = '';
+          e.preventDefault();
+        }
+      } else if (e.key.length === 1) {
+        buffer += e.key;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [productos, categorias, generarSiguienteSKU]);
+
+  const handleSubmitRecepcion = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!productoRecepcion || cantidadRecepcion <= 0) return;
+
+    ajustarStock(productoRecepcion.id, cantidadRecepcion, motivoRecepcion || 'Recepción de Mercadería', 'ENTRADA_COMPRA');
+    setModalRecepcionOpen(false);
+    setProductoRecepcion(null);
+    mostrarNotificacion(`¡Se agregaron +${cantidadRecepcion} unidades a "${productoRecepcion.nombre}"!`, 'success');
   };
 
   const margenCalculado = calculateMargin(form.precio_venta, form.precio_compra);
@@ -425,6 +516,153 @@ export default function ProductosPage() {
         </div>
       )}
 
+      {/* Modal Recepción Rápida de Stock (Código de Barras Existente) */}
+      {modalRecepcionOpen && productoRecepcion && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200 space-y-4 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                  <Boxes className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-base">Recepción de Mercadería</h3>
+                  <p className="text-[11px] text-slate-500">Producto ya registrado en el catálogo</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setModalRecepcionOpen(false);
+                  setProductoRecepcion(null);
+                }}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1.5">
+              <span className="font-black text-slate-900 text-sm block">{productoRecepcion.nombre}</span>
+              <div className="grid grid-cols-2 gap-2 text-slate-600 font-mono text-[11px] pt-1">
+                <div>SKU: <strong className="text-slate-900">#{productoRecepcion.sku.replace(/\D/g, '') || productoRecepcion.sku}</strong></div>
+                <div>EAN: <strong className="text-slate-900">{productoRecepcion.codigo_barras || 'N/A'}</strong></div>
+                <div>Stock Actual: <strong className="text-blue-700">{productoRecepcion.stock_actual ?? 0} {productoRecepcion.unidad_medida || 'u.'}</strong></div>
+                <div>P. Venta: <strong className="text-slate-900">{formatCLP(productoRecepcion.precio_venta)}</strong></div>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmitRecepcion} className="space-y-4 text-xs">
+              <div className="space-y-1">
+                <label className="font-bold text-slate-800">Unidades que Ingresan / Llegaron *</label>
+                <input
+                  type="number"
+                  min="1"
+                  autoFocus
+                  required
+                  value={cantidadRecepcion}
+                  onChange={e => setCantidadRecepcion(Number(e.target.value))}
+                  className="w-full p-2.5 bg-white border-2 border-emerald-500 rounded-xl text-slate-900 text-sm font-black outline-none"
+                />
+                <span className="text-[10px] text-slate-400">
+                  Nuevo stock total resultante: <strong className="text-emerald-700 font-bold">{(productoRecepcion.stock_actual ?? 0) + cantidadRecepcion} {productoRecepcion.unidad_medida || 'u.'}</strong>
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-slate-700">Factura de Compra / Observación *</label>
+                <input
+                  type="text"
+                  required
+                  value={motivoRecepcion}
+                  onChange={e => setMotivoRecepcion(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModalRecepcionOpen(false);
+                    setProductoRecepcion(null);
+                  }}
+                  className="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 font-semibold text-slate-700 text-xs cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-bold text-white shadow-md text-xs cursor-pointer"
+                >
+                  + Sumar al Inventario
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Escáner Rápido / Ingreso Manual de Código */}
+      {modalEscanearRapidoOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 space-y-4 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <Barcode className="w-5 h-5 text-blue-600" />
+                <h3 className="font-bold text-slate-900 text-sm">Escanear / Pistolear Mercadería</h3>
+              </div>
+              <button
+                onClick={() => setModalEscanearRapidoOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600">
+              Dispara tu pistola lectora o escribe el código de barras / SKU para recepcionar stock o crear un producto nuevo.
+            </p>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!codigoInputManual.trim()) return;
+                procesarEscaneoMercaderia(codigoInputManual.trim());
+                setCodigoInputManual('');
+                setModalEscanearRapidoOpen(false);
+              }}
+              className="space-y-3"
+            >
+              <input
+                type="text"
+                autoFocus
+                required
+                placeholder="Ej. 780000000317 o SKU..."
+                value={codigoInputManual}
+                onChange={e => setCodigoInputManual(e.target.value)}
+                className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 outline-none focus:border-blue-500"
+              />
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setModalEscanearRapidoOpen(false)}
+                  className="flex-1 py-2 px-3 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold"
+                >
+                  Procesar Código
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Modal Registrar / Editar Producto */}
       {(modalNuevoOpen || modalEditarOpen) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-xs p-4 overflow-y-auto">
@@ -643,6 +881,14 @@ export default function ProductosPage() {
               <span>Ajustar {seleccionados.length} Precios</span>
             </button>
           )}
+          <button
+            onClick={() => setModalEscanearRapidoOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer"
+            title="Escanear o ingresar código de barras de mercadería entrante"
+          >
+            <Barcode className="w-4 h-4" />
+            <span>Recepción Mercadería</span>
+          </button>
           <button
             onClick={() => setModalNuevoOpen(true)}
             className="flex items-center gap-2 px-4 py-2 bg-[#2d3748] hover:bg-[#1a202c] text-white font-bold text-xs rounded-xl shadow-sm transition-all active:scale-95 cursor-pointer"

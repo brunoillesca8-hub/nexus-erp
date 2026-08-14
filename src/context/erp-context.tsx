@@ -102,18 +102,19 @@ export function ERPProvider({ children }: { children: React.ReactNode }) {
     }, 4000);
   }, []);
 
-  // Generador de SKU correlativo autoincrementable automático
+  // Generador de Código SKU 100% Numérico Autoincrementable (ej: 1001, 1002, 1003...)
   const generarSiguienteSKU = useCallback(() => {
-    let maxNum = 0;
+    let maxNum = 1000;
     productos.forEach(p => {
-      const match = p.sku.match(/SKU-(\d+)/i);
-      if (match && match[1]) {
-        const n = parseInt(match[1], 10);
+      // Extraer los dígitos numéricos del SKU
+      const numEncontrado = p.sku.replace(/\D/g, '');
+      if (numEncontrado) {
+        const n = parseInt(numEncontrado, 10);
         if (n > maxNum) maxNum = n;
       }
     });
     const nextNum = maxNum + 1;
-    return `SKU-${nextNum.toString().padStart(4, '0')}`;
+    return nextNum.toString();
   }, [productos]);
 
   // Actualizar nombre del local principal
